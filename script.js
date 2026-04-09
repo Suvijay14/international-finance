@@ -2059,322 +2059,115 @@ function navigateToStoryTopic(topicId) {
 }
 
 function renderStoryTopic(topicId) {
-  const storyMode = typeof window !== 'undefined' ? window.STORY_MODE : null;
-  const stories = storyMode ? storyMode[topicId] : null;
-
-  if (!stories || !Array.isArray(stories)) {
-    console.error('No stories found for', topicId, 'Keys available:', storyMode ? Object.keys(storyMode) : []);
+  const container = document.getElementById('story-view');
+  if (!container) return;
+  
+  const allStories = window.STORY_MODE;
+  if (!allStories || !allStories[topicId]) {
+    container.innerHTML = '<p style="color:red;padding:2rem">Stories not found for ' + topicId + '</p>';
     return;
   }
+  
+  const stories = allStories[topicId];
+  const topic = allStories.topics.find(t => t.id === topicId);
+  let idx = 0;
 
-  const topic = (storyMode && Array.isArray(storyMode.topics))
-    ? storyMode.topics.find((t) => t.id === topicId)
-    : null;
-  if (!topic) return;
+  function render(i) {
+    const s = stories[i];
+    const pct = Math.round(((i + 1) / stories.length) * 100);
+    
+    let formulaHTML = '';
+    if (s.formula) {
+      formulaHTML = `<div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;"><div style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#A78BFA;margin-bottom:0.6rem;">Formula</div><pre style="font-family:monospace;font-size:0.85rem;color:#C4B5FD;margin:0;white-space:pre-wrap;">${s.formula}</pre></div>`;
+    }
+    
+    let exampleHTML = '';
+    if (s.example) {
+      exampleHTML = `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;"><div style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#94A3B8;margin-bottom:0.6rem;">Example</div><p style="color:#94A3B8;font-size:0.88rem;line-height:1.8;margin:0;white-space:pre-line;">${s.example}</p></div>`;
+    }
+    
+    let questionHTML = '';
+    if (s.question.type === 'mcq') {
+      const opts = s.question.options.map((opt, oi) => 
+        `<div id="opt-${oi}" onclick="pickOpt(${oi},${s.question.answer},'${s.question.explanation.replace(/'/g,"\\'").replace(/\n/g,' ')}')" style="padding:0.9rem 1.25rem;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);cursor:pointer;margin-bottom:0.5rem;font-size:0.9rem;color:#94A3B8;transition:all 0.2s;">${opt}</div>`
+      ).join('');
+      questionHTML = `<div style="margin-bottom:2rem;"><div style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#94A3B8;margin-bottom:1rem;">Quick Check</div><p style="color:#F1F5F9;font-size:1rem;font-weight:500;margin-bottom:1rem;line-height:1.5;">${s.question.text}</p>${opts}<div id="mcq-exp" style="display:none;margin-top:1rem;padding:1rem;border-radius:10px;font-size:0.88rem;line-height:1.6;color:#94A3B8;"></div></div>`;
+    } else {
+      questionHTML = `<div style="margin-bottom:2rem;"><div style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#94A3B8;margin-bottom:1rem;">Your Turn</div><p style="color:#F1F5F9;font-size:1rem;font-weight:500;margin-bottom:1rem;line-height:1.5;">${s.question.text}</p><textarea id="ans" placeholder="Write your answer here..." style="width:100%;min-height:130px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:1rem;color:#F1F5F9;font-size:0.9rem;line-height:1.7;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box;"></textarea><button onclick="checkAns('${topicId}',${i})" style="margin-top:0.75rem;padding:0.7rem 1.5rem;background:#4F8EF7;color:white;border:none;border-radius:8px;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Check Answer</button><div id="open-fb" style="margin-top:1rem;display:none;"></div></div>`;
+    }
 
-  const container =
-    document.getElementById('story-view') ||
-    document.getElementById('story-route') ||
-    document.querySelector('[data-view="story"]') ||
-    document.querySelector('.story-container');
-  if (!container) return;
-
-  let currentStory = 0;
-
-  function showStory(index) {
-    const s = stories[index];
-    const question = s && s.question ? s.question : null;
-    const questionType = question ? question.type : null;
-    const questionText = question ? question.text : '';
-    const questionKeywords = question && Array.isArray(question.keywords) ? question.keywords : [];
-    const modelAnswer = question ? question.model_answer : '';
-    const questionOptions = question && Array.isArray(question.options) ? question.options : [];
-    const correctAnswerIndex = question && Number.isInteger(question.answer) ? question.answer : -1;
-    const explanation = question ? String(question.explanation || '') : '';
     container.innerHTML = `
-      <div style="max-width:760px;margin:0 auto;padding:2rem;">
-        
-        <div style="display:flex;align-items:center;
-                    gap:1rem;margin-bottom:2rem;">
-          <button onclick="renderStoryMode()"
-                  style="font-size:0.72rem;font-weight:500;
-                         letter-spacing:0.06em;text-transform:uppercase;
-                         color:var(--text-secondary);
-                         padding:0.4rem 0.8rem;
-                         border:1px solid var(--glass-border);
-                         border-radius:6px;background:var(--glass-bg);
-                         cursor:pointer;">
-            ← Back
-          </button>
-          <div style="flex:1;height:4px;background:var(--bg-tertiary);
-                      border-radius:100px;overflow:hidden;">
-            <div style="height:100%;background:${topic.color};
-                        width:${((index + 1) / stories.length) * 100}%;
-                        transition:width 0.5s ease;border-radius:100px;">
-            </div>
+      <div style="max-width:760px;margin:0 auto;padding:5rem 2rem 3rem;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem;">
+          <button onclick="window.location.hash='story';renderStoryMode();" style="padding:0.4rem 0.9rem;border:1px solid rgba(255,255,255,0.1);border-radius:6px;background:rgba(255,255,255,0.04);color:#94A3B8;font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">← Back</button>
+          <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;">
+            <div style="height:100%;background:${topic ? topic.color : '#4F8EF7'};width:${pct}%;transition:width 0.5s ease;border-radius:100px;"></div>
           </div>
-          <span style="font-size:0.72rem;color:var(--text-tertiary);
-                       white-space:nowrap;">
-            ${index + 1} / ${stories.length}
-          </span>
+          <span style="font-size:0.72rem;color:#475569;white-space:nowrap;">${i+1} / ${stories.length}</span>
         </div>
 
-        <h2 style="font-family:var(--font-display);font-size:2rem;
-                   color:var(--text-primary);margin-bottom:2rem;
-                   line-height:1.2;">
-          ${s.title}
-        </h2>
+        <h2 style="font-family:var(--font-display,Georgia),serif;font-size:2rem;color:#F1F5F9;margin-bottom:2rem;line-height:1.2;">${s.title}</h2>
 
-        <div style="background:rgba(79,142,247,0.06);
-                    border-left:4px solid #4F8EF7;
-                    border-radius:0 12px 12px 0;
-                    padding:1.25rem 1.5rem;margin-bottom:2rem;">
-          <div style="font-size:0.6rem;font-weight:600;
-                      letter-spacing:0.15em;text-transform:uppercase;
-                      color:#4F8EF7;margin-bottom:0.5rem;">
-            The Story
-          </div>
-          <p style="color:var(--text-secondary);line-height:1.8;
-                    font-size:0.95rem;margin:0;">
-            ${s.hook}
-          </p>
+        <div style="background:rgba(79,142,247,0.07);border-left:4px solid #4F8EF7;border-radius:0 12px 12px 0;padding:1.25rem 1.5rem;margin-bottom:2rem;">
+          <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#4F8EF7;margin-bottom:0.5rem;">The Story</div>
+          <p style="color:#94A3B8;line-height:1.9;font-size:0.95rem;margin:0;">${s.hook}</p>
         </div>
 
-        <div style="color:var(--text-secondary);line-height:1.9;
-                    font-size:0.92rem;margin-bottom:2rem;
-                    white-space:pre-line;">
-          ${s.concept}
-        </div>
+        <div style="color:#94A3B8;line-height:1.9;font-size:0.92rem;margin-bottom:2rem;white-space:pre-line;">${s.concept}</div>
 
-        ${
-          s.formula !== null
-            ? `
-          <div style="background:rgba(167,139,250,0.08);
-                      border:1px solid rgba(167,139,250,0.2);
-                      border-radius:12px;padding:1.25rem 1.5rem;
-                      margin-bottom:2rem;">
-            <div style="font-size:0.6rem;font-weight:600;
-                        letter-spacing:0.15em;text-transform:uppercase;
-                        color:#A78BFA;margin-bottom:0.75rem;">
-              Formula
-            </div>
-            <pre style="font-family:ui-monospace, monospace;font-size:0.85rem;
-                        color:#A78BFA;margin:0;white-space:pre-wrap;">
-${s.formula}</pre>
-          </div>
-        `
-            : ''
-        }
+        ${formulaHTML}
+        ${exampleHTML}
+        ${questionHTML}
 
-        ${
-          s.example !== null
-            ? `
-          <div style="background:rgba(255,255,255,0.03);
-                      border:1px solid var(--glass-border);
-                      border-radius:12px;padding:1.25rem 1.5rem;
-                      margin-bottom:2rem;">
-            <div style="font-size:0.6rem;font-weight:600;
-                        letter-spacing:0.15em;text-transform:uppercase;
-                        color:var(--text-tertiary);margin-bottom:0.75rem;">
-              Example
-            </div>
-            <p style="color:var(--text-secondary);font-size:0.88rem;
-                      line-height:1.7;margin:0;white-space:pre-line;">
-              ${s.example}
-            </p>
-          </div>
-        `
-            : ''
-        }
-
-        ${
-          questionType === 'mcq'
-            ? `
-          <div style="margin-bottom:2rem;">
-            <div style="font-size:0.6rem;font-weight:600;
-                        letter-spacing:0.15em;text-transform:uppercase;
-                        color:var(--text-tertiary);margin-bottom:1rem;">
-              Quick Check
-            </div>
-            <p style="color:var(--text-primary);font-size:1rem;
-                      font-weight:500;margin-bottom:1rem;line-height:1.5;">
-              ${questionText}
-            </p>
-            ${questionOptions
-              .map(
-                (opt, i) => `
-              <div id="mcq-opt-${i}"
-                   onclick="checkMCQ(${i}, ${correctAnswerIndex}, '${explanation.replace(/'/g, '&#39;')}')"
-                   style="padding:0.9rem 1.25rem;border-radius:10px;
-                          border:1px solid var(--glass-border);
-                          background:var(--glass-bg);cursor:pointer;
-                          margin-bottom:0.5rem;font-size:0.9rem;
-                          color:var(--text-secondary);
-                          transition:all 0.2s ease;">
-                ${opt}
-              </div>
-            `
-              )
-              .join('')}
-            <div id="mcq-explanation" style="display:none;
-                 margin-top:1rem;padding:1rem;
-                 border-radius:10px;font-size:0.88rem;line-height:1.6;">
-            </div>
-          </div>
-        `
-            : `
-          <div style="margin-bottom:2rem;">
-            <div style="font-size:0.6rem;font-weight:600;
-                        letter-spacing:0.15em;text-transform:uppercase;
-                        color:var(--text-tertiary);margin-bottom:1rem;">
-              Your Turn
-            </div>
-            <p style="color:var(--text-primary);font-size:1rem;
-                      font-weight:500;margin-bottom:1rem;line-height:1.5;">
-              ${questionText}
-            </p>
-            <textarea id="story-answer"
-                      placeholder="Write your answer here..."
-                      style="width:100%;min-height:120px;
-                             background:rgba(255,255,255,0.06);
-                             border:1px solid rgba(255,255,255,0.15);
-                             border-radius:10px;padding:1rem;
-                             color:var(--text-primary);font-size:0.9rem;
-                             line-height:1.7;resize:vertical;
-                             font-family:inherit;outline:none;
-                             box-sizing:border-box;"></textarea>
-            <button onclick='checkOpenAnswer(
-                      document.getElementById("story-answer").value,
-                      ${JSON.stringify(questionKeywords)},
-                      ${JSON.stringify(modelAnswer)}
-                    )'
-                    style="margin-top:0.75rem;padding:0.7rem 1.5rem;
-                           background:#4F8EF7;color:white;border:none;
-                           border-radius:8px;font-size:0.75rem;
-                           font-weight:600;letter-spacing:0.1em;
-                           text-transform:uppercase;cursor:pointer;">
-              Check My Answer
-            </button>
-            <div id="open-feedback" style="margin-top:1rem;display:none;">
-            </div>
-          </div>
-        `
-        }
-
-        <button id="next-story-btn"
-                onclick="${index < stories.length - 1 ? `showStoryIndex(${index + 1})` : `showStoryComplete('${topicId}')`}"
-                style="display:none;width:100%;padding:1rem;
-                       background:#4F8EF7;color:white;border:none;
-                       border-radius:10px;font-size:0.8rem;
-                       font-weight:600;letter-spacing:0.1em;
-                       text-transform:uppercase;cursor:pointer;
-                       transition:all 0.2s ease;">
-          ${index < stories.length - 1 ? 'Next Story →' : 'Complete Topic ✓'}
+        <button id="next-btn" style="display:none;width:100%;padding:1rem;background:#4F8EF7;color:white;border:none;border-radius:10px;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;" onclick="goNext(${i},${stories.length},'${topicId}')">
+          ${i < stories.length - 1 ? 'Next Story →' : 'Complete Topic ✓'}
         </button>
+      </div>`;
 
-      </div>
-    `;
-
-    window.showStoryIndex = function (i) {
-      currentStory = i;
-      showStory(i);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.pickOpt = function(sel, correct, exp) {
+      for (let o = 0; o < s.question.options.length; o++) {
+        const el = document.getElementById('opt-'+o);
+        if (!el) continue;
+        el.onclick = null;
+        if (o === correct) { el.style.borderColor='#34D399'; el.style.color='#34D399'; el.style.background='rgba(52,211,153,0.1)'; }
+        else if (o === sel) { el.style.borderColor='#F87171'; el.style.color='#F87171'; el.style.background='rgba(248,113,113,0.1)'; }
+      }
+      const e = document.getElementById('mcq-exp');
+      if (e) { e.style.display='block'; e.style.background= sel===correct ? 'rgba(52,211,153,0.08)':'rgba(248,113,113,0.08)'; e.style.border= sel===correct ? '1px solid rgba(52,211,153,0.2)':'1px solid rgba(248,113,113,0.2)'; e.innerHTML=exp; }
+      const nb = document.getElementById('next-btn');
+      if (nb) nb.style.display='block';
     };
+
+    window.checkAns = function(tid, si) {
+      const ans = (document.getElementById('ans')||{}).value || '';
+      const kws = window.STORY_MODE[tid][si].question.keywords || [];
+      const ma = window.STORY_MODE[tid][si].question.model_answer || '';
+      const lower = ans.toLowerCase();
+      const matched = kws.filter(k => lower.includes(k.toLowerCase()));
+      const score = kws.length ? Math.round(matched.length/kws.length*100) : 50;
+      const color = score>=70?'#34D399':score>=40?'#FBBF24':'#F87171';
+      const fb = document.getElementById('open-fb');
+      if (fb) {
+        fb.style.display='block';
+        fb.innerHTML=`<div style="height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:0.5rem;"><div style="height:100%;background:${color};width:${score}%;transition:width 0.6s ease;border-radius:100px;"></div></div><p style="color:${color};font-size:0.8rem;font-weight:600;margin-bottom:1rem;">${score}% — ${score>=70?'Strong answer':score>=40?'Good attempt':'Review needed'}</p><div style="background:rgba(79,142,247,0.06);border:1px solid rgba(79,142,247,0.15);border-radius:10px;padding:1rem;"><div style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#4F8EF7;margin-bottom:0.5rem;">Model Answer</div><p style="color:#94A3B8;font-size:0.88rem;line-height:1.7;margin:0;">${ma}</p></div>`;
+      }
+      const nb = document.getElementById('next-btn');
+      if (nb) nb.style.display='block';
+    };
+
+    window.goNext = function(ci, total, tid) {
+      if (ci < total - 1) {
+        window.scrollTo({top:0,behavior:'smooth'});
+        render(ci + 1);
+      } else {
+        container.innerHTML=`<div style="max-width:600px;margin:0 auto;padding:6rem 2rem;text-align:center;"><div style="width:64px;height:64px;border-radius:50%;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.5rem;color:#34D399;">✓</div><h2 style="font-family:Georgia,serif;font-size:2rem;color:#F1F5F9;margin-bottom:0.5rem;">Topic Complete</h2><p style="color:#94A3B8;margin-bottom:2rem;">You finished all ${total} stories.</p><button onclick="window.location.hash='story';renderStoryMode();" style="padding:0.8rem 2rem;background:#4F8EF7;color:white;border:none;border-radius:10px;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Back to Topics</button></div>`;
+      }
+    };
+
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  window.checkMCQ = function (selected, correct, explanation) {
-    const opts = document.querySelectorAll('[id^="mcq-opt-"]');
-    opts.forEach((o, i) => {
-      o.onclick = null;
-      if (i === correct) {
-        o.style.borderColor = '#34D399';
-        o.style.background = 'rgba(52,211,153,0.1)';
-        o.style.color = '#34D399';
-      } else if (i === selected && selected !== correct) {
-        o.style.borderColor = '#F87171';
-        o.style.background = 'rgba(248,113,113,0.1)';
-        o.style.color = '#F87171';
-      }
-    });
-    const exp = document.getElementById('mcq-explanation');
-    exp.style.display = 'block';
-    exp.style.background = selected === correct ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)';
-    exp.style.border =
-      selected === correct ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(248,113,113,0.2)';
-    exp.style.color = 'var(--text-secondary)';
-    exp.innerHTML = explanation;
-    document.getElementById('next-story-btn').style.display = 'block';
-  };
-
-  window.checkOpenAnswer = function (answer, keywords, modelAnswer) {
-    const lower = String(answer || '').toLowerCase();
-    const matched = keywords.filter((k) => lower.includes(String(k).toLowerCase()));
-    const score = Math.round((matched.length / keywords.length) * 100);
-    const fb = document.getElementById('open-feedback');
-    fb.style.display = 'block';
-    const color = score >= 70 ? '#34D399' : score >= 40 ? '#FBBF24' : '#F87171';
-    fb.innerHTML = `
-      <div style="margin-bottom:0.75rem;">
-        <div style="height:4px;background:var(--bg-tertiary);
-                    border-radius:100px;overflow:hidden;margin-bottom:0.5rem;">
-          <div style="height:100%;background:${color};width:${score}%;
-                      transition:width 0.6s ease;border-radius:100px;"></div>
-        </div>
-        <span style="font-size:0.8rem;color:${color};font-weight:600;">
-          ${score}% — ${score >= 70 ? 'Strong answer' : score >= 40 ? 'Good attempt' : 'Keep reviewing'}
-        </span>
-      </div>
-      <div style="background:rgba(79,142,247,0.06);
-                  border:1px solid rgba(79,142,247,0.15);
-                  border-radius:10px;padding:1rem;margin-top:0.75rem;">
-        <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.12em;
-                    text-transform:uppercase;color:#4F8EF7;margin-bottom:0.5rem;">
-          Model Answer
-        </div>
-        <p style="color:var(--text-secondary);font-size:0.88rem;
-                  line-height:1.7;margin:0;">${modelAnswer}</p>
-      </div>
-    `;
-    document.getElementById('next-story-btn').style.display = 'block';
-  };
-
-  window.showStoryComplete = function (topicIdInner) {
-    const completeContainer =
-      document.getElementById('story-view') ||
-      document.getElementById('story-route') ||
-      document.querySelector('[data-view="story"]') ||
-      document.querySelector('.story-container');
-    if (!completeContainer) return;
-    completeContainer.innerHTML = `
-      <div style="max-width:600px;margin:0 auto;padding:4rem 2rem;
-                  text-align:center;">
-        <div style="width:64px;height:64px;border-radius:50%;
-                    background:rgba(52,211,153,0.12);
-                    border:1px solid rgba(52,211,153,0.3);
-                    display:flex;align-items:center;justify-content:center;
-                    margin:0 auto 1.5rem;font-size:1.5rem;color:#34D399;">
-          ✓
-        </div>
-        <h2 style="font-family:var(--font-display);font-size:2rem;
-                   color:var(--text-primary);margin-bottom:0.5rem;">
-          Topic Complete
-        </h2>
-        <p style="color:var(--text-secondary);margin-bottom:2rem;">
-          You finished all ${stories.length} stories in ${topic.title_en}.
-        </p>
-        <button onclick="renderStoryMode()"
-                style="padding:0.8rem 2rem;background:#4F8EF7;
-                       color:white;border:none;border-radius:10px;
-                       font-size:0.8rem;font-weight:600;
-                       letter-spacing:0.1em;text-transform:uppercase;
-                       cursor:pointer;">
-          Back to Topics
-        </button>
-      </div>
-    `;
-  };
-
-  showStory(currentStory);
+  render(0);
 }
 
 function initTopicInteractions(id) {
