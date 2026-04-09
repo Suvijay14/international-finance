@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IF Study — SKEMA International Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header" id="site-header">
+    <div class="nav-inner">
+      <a href="#home" class="logo nav-logo" id="nav-logo">IF Study</a>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false"></button>
+      <nav class="nav-topics" id="nav-topics" aria-label="Topics">
+        <a href="#IF1" class="nav-topic-link" data-topic="IF1">IF1</a>
+        <a href="#IF2" class="nav-topic-link" data-topic="IF2">IF2</a>
+        <a href="#IF3" class="nav-topic-link" data-topic="IF3">IF3</a>
+        <a href="#IF4" class="nav-topic-link" data-topic="IF4">IF4</a>
+        <a href="#IF5" class="nav-topic-link" data-topic="IF5">IF5</a>
+        <a href="#IF6" class="nav-topic-link" data-topic="IF6">IF6</a>
+        <a href="#IF7" class="nav-topic-link" data-topic="IF7">IF7</a>
+        <a href="#IF8" class="nav-topic-link" data-topic="IF8">IF8</a>
+        <a href="#IF9" class="nav-topic-link" data-topic="IF9">IF9</a>
+      </nav>
+      <div class="nav-actions nav-right">
+        <a href="#grade-calc" class="nav-link nav-btn nav-scroll-home" data-scroll-target="grade-calc" data-i18n="nav.grades">Grades</a>
+        <a href="#doubt-board" class="nav-link nav-btn nav-scroll-home" data-scroll-target="doubt-board" data-i18n="nav.doubt">Doubt Board</a>
+        <a href="#sticky-notes" class="nav-link nav-btn nav-scroll-home" data-scroll-target="sticky-notes" data-i18n="nav.notes">Notes</a>
+        <div class="lang-toggle" aria-label="Language toggle">
+          <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+          <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="spa-stage" class="spa-stage">
+      <div id="home-view" class="view-pane home-view-pane">
+        <section class="hero" id="hero">
+          <p class="hero-eyebrow" data-i18n="hero.eyebrow">SKEMA Business School</p>
+          <h1 class="hero-title" data-i18n="hero.title">Pass International Finance</h1>
+          <p class="hero-sub hero-subtitle" data-i18n="hero.subtitle">Study guide for the April 16 exam</p>
+          <div class="countdown" id="countdown" aria-live="polite">
+            <div class="countdown-unit">
+              <div class="countdown-box"><span class="countdown-digit" data-unit="days">0</span></div>
+              <span class="countdown-label" data-i18n="countdown.days">Days</span>
+            </div>
+            <div class="countdown-unit">
+              <div class="countdown-box"><span class="countdown-digit" data-unit="hours">0</span></div>
+              <span class="countdown-label" data-i18n="countdown.hours">Hours</span>
+            </div>
+            <div class="countdown-unit">
+              <div class="countdown-box"><span class="countdown-digit" data-unit="minutes">0</span></div>
+              <span class="countdown-label" data-i18n="countdown.minutes">Minutes</span>
+            </div>
+            <div class="countdown-unit">
+              <div class="countdown-box"><span class="countdown-digit" data-unit="seconds">0</span></div>
+              <span class="countdown-label" data-i18n="countdown.seconds">Seconds</span>
+            </div>
+          </div>
+          <p class="hero-exam exam-info-strip" data-i18n="hero.exam.info">4 MCQ + 18 Open Questions · 2 hours · Closed book</p>
+        </section>
+
+        <section class="section grade-section" id="grade-calc">
+          <h2 data-i18n="grade.title">How Many Marks Do You Need?</h2>
+          <div class="grade-inputs">
+            <label class="grade-field">
+              <span data-i18n="grade.midterm.label">Midterm (out of 20) — 40% weight</span>
+              <input type="number" id="midterm" min="0" max="20" step="0.5" value="10" />
+            </label>
+            <label class="grade-field">
+              <span data-i18n="grade.online.label">Online Course (out of 10) — 10% weight</span>
+              <input type="number" id="online" min="0" max="10" step="0.5" value="5" />
+            </label>
+            <label class="grade-field">
+              <span data-i18n="grade.final.label">Final Exam (out of 40) — 50% weight</span>
+              <input type="range" id="final" min="0" max="40" step="0.5" value="20" />
+              <span class="slider-value" id="final-val">20</span>
+            </label>
+          </div>
+          <div class="grade-display">
+            <div class="grade-gauge-wrap">
+              <div class="grade-bar-bg"><div class="grade-bar-fill" id="grade-bar-fill"></div></div>
+              <p class="grade-predicted" id="grade-predicted"></p>
+              <p class="grade-status" id="grade-status">Status: —</p>
+              <p class="grade-need" id="grade-need"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section topic-picker-section" id="topic-picker">
+          <h2 data-i18n="hero.choose">Choose a topic to begin</h2>
+          <p class="section-sub">Pick one module — you’ll study it full screen, one topic at a time.</p>
+          <div id="topic-cards-grid" class="topic-cards-grid" aria-label="Topics"></div>
+        </section>
+
+        <section class="section doubt-section" id="doubt-board">
+          <h2 data-i18n="doubt.title">Class Doubt Board</h2>
+          <p class="section-sub" data-i18n="doubt.subtitle">Ask a question or share something useful. The whole class sees this.</p>
+          <div class="doubt-layout">
+            <form class="doubt-form" id="doubt-form">
+              <label>
+                <span data-i18n="doubt.name">Your name (optional)</span>
+                <input type="text" name="name" placeholder="Anonymous" maxlength="80" data-i18n-placeholder="doubt.anonymous" />
+              </label>
+              <label>
+                <span data-i18n="doubt.topic">Topic</span>
+                <select name="topic" id="doubt-topic">
+                  <option value="General" data-i18n="doubt.general">General</option>
+                  <option value="IF1">IF1</option>
+                  <option value="IF2">IF2</option>
+                  <option value="IF3">IF3</option>
+                  <option value="IF4">IF4</option>
+                  <option value="IF5">IF5</option>
+                  <option value="IF6">IF6</option>
+                  <option value="IF7">IF7</option>
+                  <option value="IF8">IF8</option>
+                  <option value="IF9">IF9</option>
+                </select>
+              </label>
+              <label>
+                <span data-i18n="doubt.question">Your question or insight</span>
+                <textarea name="content" required minlength="10" rows="5" placeholder="What would you like to share?" data-i18n-placeholder="doubt.question"></textarea>
+              </label>
+              <button type="submit" class="btn btn-primary" data-i18n="doubt.post">Post</button>
+            </form>
+            <div class="doubt-feed" id="doubt-feed"></div>
+          </div>
+        </section>
+
+        <section class="section sticky-section" id="sticky-notes">
+          <h2 data-i18n="notes.title">Class Sticky Notes</h2>
+          <p class="section-sub" data-i18n="notes.subtitle">Pin something important. Everyone can see it.</p>
+          <form class="sticky-form" id="sticky-form">
+            <div class="color-picker">
+              <label><input type="radio" name="color" value="yellow" checked /> Yellow</label>
+              <label><input type="radio" name="color" value="green" /> Green</label>
+              <label><input type="radio" name="color" value="pink" /> Pink</label>
+              <label><input type="radio" name="color" value="blue" /> Blue</label>
+            </div>
+            <input type="text" name="content" placeholder="Write something important..." maxlength="500" required data-i18n-placeholder="notes.placeholder" />
+            <button type="submit" class="btn btn-primary" data-i18n="notes.pin">Pin Note</button>
+          </form>
+          <div class="sticky-grid" id="sticky-grid"></div>
+        </section>
+      </div>
+
+      <div id="topics-mount" class="topics-spa-mount" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Built for SKEMA International Finance — Exam: April 16, 2026</p>
+    <nav class="footer-nav" aria-label="Topic links">
+      <a href="#IF1" class="nav-topic-link footer-topic-link" data-topic="IF1">IF1</a>
+      <a href="#IF2" class="nav-topic-link footer-topic-link" data-topic="IF2">IF2</a>
+      <a href="#IF3" class="nav-topic-link footer-topic-link" data-topic="IF3">IF3</a>
+      <a href="#IF4" class="nav-topic-link footer-topic-link" data-topic="IF4">IF4</a>
+      <a href="#IF5" class="nav-topic-link footer-topic-link" data-topic="IF5">IF5</a>
+      <a href="#IF6" class="nav-topic-link footer-topic-link" data-topic="IF6">IF6</a>
+      <a href="#IF7" class="nav-topic-link footer-topic-link" data-topic="IF7">IF7</a>
+      <a href="#IF8" class="nav-topic-link footer-topic-link" data-topic="IF8">IF8</a>
+      <a href="#IF9" class="nav-topic-link footer-topic-link" data-topic="IF9">IF9</a>
+    </nav>
+    <button type="button" class="btn btn-outline btn-secondary" id="open-formula-modal" data-i18n="formula.title">Formula Sheet</button>
+  </footer>
+
+  <div class="modal" id="formula-modal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog" role="dialog" aria-labelledby="formula-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+      <h2 id="formula-modal-title" data-i18n="formula.title">Formula Sheet</h2>
+      <div class="formula-table-wrap" id="formula-modal-body"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
