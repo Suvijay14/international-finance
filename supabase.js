@@ -53,20 +53,39 @@ async function postDoubt(name, topic, content) {
   if (!db) throw new Error('Supabase not configured');
   const { error } = await db.from('doubts').insert({ name: name || 'Anonymous', topic, content });
   if (error) throw error;
+  loadDoubts();
 }
 
 async function loadDoubts() {
   if (!db) return [];
   const { data, error } = await db.from('doubts').select('*').order('created_at', { ascending: false });
-  if (error) throw error;
-  return data || [];
+  if (error) {
+    console.error('Error loading doubts:', error);
+    const feed = document.getElementById('doubt-feed');
+    if (feed) feed.innerHTML = '<p class="doubt-card">Could not load doubts (check table and RLS).</p>';
+    return [];
+  }
+
+  const feed = document.getElementById('doubt-feed');
+  if (!feed) return data || [];
+
+  if (!data || data.length === 0) {
+    feed.innerHTML = '<p class="doubt-card">No doubts yet.</p>';
+    return [];
+  }
+
+  feed.innerHTML = '';
+  data.forEach((row) => feed.appendChild(renderDoubtCard(row, false)));
+  return data;
 }
 
-function subscribeToDoubts(callback) {
+function subscribeToDoubts() {
   if (!db) return () => {};
   const ch = db
-    .channel('doubts-live')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'doubts' }, (p) => callback(p.new))
+    .channel('doubts_channel')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'doubts' }, () => {
+      loadDoubts();
+    })
     .subscribe();
   return () => {
     db.removeChannel(ch);
@@ -75,26 +94,71 @@ function subscribeToDoubts(callback) {
 
 async function postStickyNote(content, color) {
   if (!db) throw new Error('Supabase not configured');
-  const { error } = await db.from('sticky_notes').insert({ content, color: color || 'yellow' });
+  const { error } = await db
+    .from('sticky_notes')
+    .insert([{ content, color: color || 'yellow' }]);
   if (error) throw error;
+  loadStickyNotes();
 }
 
 async function loadStickyNotes() {
   if (!db) return [];
-  const { data, error } = await db.from('sticky_notes').select('*').order('created_at', { ascending: false }).limit(50);
-  if (error) throw error;
-  return data || [];
+  const { data, error } = await db
+    .from('sticky_notes')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('Error loading notes:', error);
+    const container = document.getElementById('sticky-notes-container');
+    if (container) container.innerHTML = '<p>Could not load notes.</p>';
+    return [];
+  }
+
+  const container = document.getElementById('sticky-notes-container');
+  if (!container) return data || [];
+
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-tertiary); font-size: 0.85rem;">No notes yet.</p>';
+    return [];
+  }
+
+  container.innerHTML = '';
+  data.forEach((note) => container.appendChild(renderSticky(note)));
+  return data;
 }
 
-function subscribeToStickyNotes(callback) {
+function subscribeToStickyNotes() {
   if (!db) return () => {};
   const ch = db
-    .channel('sticky-live')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sticky_notes' }, (p) => callback(p.new))
+    .channel('sticky_notes_channel')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sticky_notes' }, () => {
+      loadStickyNotes();
+    })
     .subscribe();
   return () => {
     db.removeChannel(ch);
   };
+}
+
+let doubtsSubscriptionStarted = false;
+let stickySubscriptionStarted = false;
+
+function observeSectionForReload(sectionId, loaderFn) {
+  const section = document.getElementById(sectionId);
+  if (!section || typeof IntersectionObserver === 'undefined') return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        loaderFn();
+      });
+    },
+    { threshold: 0.1 }
+  );
+  observer.observe(section);
 }
 
 function topicColor(topic) {
@@ -134,7 +198,7 @@ function showToast(msg) {
 function initSupabaseUI() {
   const feed = document.getElementById('doubt-feed');
   const form = document.getElementById('doubt-form');
-  const grid = document.getElementById('sticky-grid');
+  const grid = document.getElementById('sticky-notes-container');
   const sform = document.getElementById('sticky-form');
 
   if (!db) {
@@ -161,17 +225,12 @@ function initSupabaseUI() {
   }
 
   if (feed) {
-    loadDoubts()
-      .then((rows) => {
-        feed.innerHTML = '';
-        rows.forEach((r) => feed.appendChild(renderDoubtCard(r, false)));
-      })
-      .catch(() => {
-        feed.innerHTML = '<p class="doubt-card">Could not load doubts (check table and RLS).</p>';
-      });
-    subscribeToDoubts((row) => {
-      feed.insertBefore(renderDoubtCard(row, true), feed.firstChild);
-    });
+    loadDoubts();
+    observeSectionForReload('doubt-board', loadDoubts);
+    if (!doubtsSubscriptionStarted) {
+      subscribeToDoubts();
+      doubtsSubscriptionStarted = true;
+    }
   }
 
   if (sform && grid) {
@@ -189,23 +248,13 @@ function initSupabaseUI() {
         showToast('Could not pin: ' + (err.message || err));
       }
     });
-    loadStickyNotes()
-      .then((rows) => {
-        grid.innerHTML = '';
-        rows.forEach((r) => grid.appendChild(renderSticky(r)));
-      })
-      .catch(() => {
-        grid.innerHTML = '<p>Could not load notes.</p>';
-      });
-    subscribeToStickyNotes((row) => {
-      grid.insertBefore(renderSticky(row), grid.firstChild);
-      trimSticky(grid, 50);
-    });
+    loadStickyNotes();
+    observeSectionForReload('sticky-notes', loadStickyNotes);
+    if (!stickySubscriptionStarted) {
+      subscribeToStickyNotes();
+      stickySubscriptionStarted = true;
+    }
   }
-}
-
-function trimSticky(grid, max) {
-  while (grid.children.length > max) grid.removeChild(grid.lastChild);
 }
 
 function renderSticky(row) {
