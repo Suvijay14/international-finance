@@ -2059,9 +2059,8 @@ function navigateToStoryTopic(topicId) {
 }
 
 function renderStoryTopic(topicId) {
-  const storyMode = (typeof window !== 'undefined') ? window.STORY_MODE : null;
-
-  const stories = (storyMode && storyMode[topicId]) || (typeof window !== 'undefined' ? window['STORY_' + topicId] : null);
+  const storyMode = typeof window !== 'undefined' ? window.STORY_MODE : null;
+  const stories = storyMode ? storyMode[topicId] : null;
 
   if (!stories || !Array.isArray(stories)) {
     console.error('No stories found for', topicId, 'Keys available:', storyMode ? Object.keys(storyMode) : []);
@@ -2084,6 +2083,14 @@ function renderStoryTopic(topicId) {
 
   function showStory(index) {
     const s = stories[index];
+    const question = s && s.question ? s.question : null;
+    const questionType = question ? question.type : null;
+    const questionText = question ? question.text : '';
+    const questionKeywords = question && Array.isArray(question.keywords) ? question.keywords : [];
+    const modelAnswer = question ? question.model_answer : '';
+    const questionOptions = question && Array.isArray(question.options) ? question.options : [];
+    const correctAnswerIndex = question && Number.isInteger(question.answer) ? question.answer : -1;
+    const explanation = question ? String(question.explanation || '') : '';
     container.innerHTML = `
       <div style="max-width:760px;margin:0 auto;padding:2rem;">
         
@@ -2140,7 +2147,7 @@ function renderStoryTopic(topicId) {
         </div>
 
         ${
-          s.formula
+          s.formula !== null
             ? `
           <div style="background:rgba(167,139,250,0.08);
                       border:1px solid rgba(167,139,250,0.2);
@@ -2160,7 +2167,7 @@ ${s.formula}</pre>
         }
 
         ${
-          s.example
+          s.example !== null
             ? `
           <div style="background:rgba(255,255,255,0.03);
                       border:1px solid var(--glass-border);
@@ -2181,7 +2188,7 @@ ${s.formula}</pre>
         }
 
         ${
-          s.question.type === 'mcq'
+          questionType === 'mcq'
             ? `
           <div style="margin-bottom:2rem;">
             <div style="font-size:0.6rem;font-weight:600;
@@ -2191,13 +2198,13 @@ ${s.formula}</pre>
             </div>
             <p style="color:var(--text-primary);font-size:1rem;
                       font-weight:500;margin-bottom:1rem;line-height:1.5;">
-              ${s.question.text}
+              ${questionText}
             </p>
-            ${s.question.options
+            ${questionOptions
               .map(
                 (opt, i) => `
               <div id="mcq-opt-${i}"
-                   onclick="checkMCQ(${i}, ${s.question.answer}, '${s.question.explanation.replace(/'/g, '&#39;')}')"
+                   onclick="checkMCQ(${i}, ${correctAnswerIndex}, '${explanation.replace(/'/g, '&#39;')}')"
                    style="padding:0.9rem 1.25rem;border-radius:10px;
                           border:1px solid var(--glass-border);
                           background:var(--glass-bg);cursor:pointer;
@@ -2224,7 +2231,7 @@ ${s.formula}</pre>
             </div>
             <p style="color:var(--text-primary);font-size:1rem;
                       font-weight:500;margin-bottom:1rem;line-height:1.5;">
-              ${s.question.text}
+              ${questionText}
             </p>
             <textarea id="story-answer"
                       placeholder="Write your answer here..."
@@ -2238,8 +2245,8 @@ ${s.formula}</pre>
                              box-sizing:border-box;"></textarea>
             <button onclick='checkOpenAnswer(
                       document.getElementById("story-answer").value,
-                      ${JSON.stringify(s.question.keywords)},
-                      ${JSON.stringify(s.question.model_answer)}
+                      ${JSON.stringify(questionKeywords)},
+                      ${JSON.stringify(modelAnswer)}
                     )'
                     style="margin-top:0.75rem;padding:0.7rem 1.5rem;
                            background:#4F8EF7;color:white;border:none;
