@@ -200,9 +200,32 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <section id="if-chatbot" class="if-chatbot" aria-label="International Finance Tutor Chatbot">
+    <div class="if-chatbot-collapsed" id="if-chatbot-collapsed">
+      <div class="if-chatbot-collapsed-left">
+        <span class="if-chatbot-dot" aria-hidden="true"></span>
+        <span>Ask your tutor</span>
+      </div>
+      <button type="button" class="if-chatbot-toggle" id="if-chatbot-open">▲ Open</button>
+    </div>
+
+    <div class="if-chatbot-expanded" id="if-chatbot-expanded" hidden>
+      <div class="if-chatbot-header">
+        <span>IF Tutor</span>
+        <button type="button" class="if-chatbot-toggle" id="if-chatbot-close">✕ Close</button>
+      </div>
+      <div class="if-chatbot-messages" id="if-chatbot-messages" aria-live="polite"></div>
+      <form class="if-chatbot-input-row" id="if-chatbot-form">
+        <input id="if-chatbot-input" type="text" maxlength="600" placeholder="Ask an International Finance question..." autocomplete="off" />
+        <button type="submit" id="if-chatbot-send">Send</button>
+      </form>
+    </div>
+  </section>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js"></script>
   <script src="STORY_MODE.js"></script>
   <script src="script.js"></script>
+  <script src="chatbot.js"></script>
 </body>
 </html>
