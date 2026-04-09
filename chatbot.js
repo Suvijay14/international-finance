@@ -203,11 +203,16 @@ let conversationHistory = [
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Server error");
-      }
-
       const data = await response.json();
+      if (!response.ok) {
+        const apiError =
+          data &&
+          data.error &&
+          (typeof data.error === "string"
+            ? data.error
+            : data.error.message || data.error.code || "Server error");
+        throw new Error(apiError || "Server error");
+      }
       const reply = data && data.choices && data.choices[0] && data.choices[0].message
         ? data.choices[0].message.content
         : "Connection error. Check your internet and try again.";
@@ -219,7 +224,8 @@ let conversationHistory = [
       addMessage("assistant", reply);
     } catch (error) {
       removeTypingIndicator();
-      addMessage("assistant", "Connection error. Check your internet and try again.");
+      const detail = error && error.message ? " (" + error.message + ")" : "";
+      addMessage("assistant", "Connection error. Check your internet and try again." + detail);
     } finally {
       window.clearTimeout(slowResponseTimer);
       if (pendingSlowNode && pendingSlowNode.parentNode) {

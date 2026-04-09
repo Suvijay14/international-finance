@@ -29,6 +29,15 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    if (!response.ok) {
+      const groqMessage =
+        data &&
+        data.error &&
+        (data.error.message || data.error.code || "Groq API request failed");
+      return res.status(response.status).json({
+        error: groqMessage || "Groq API request failed"
+      });
+    }
     return res.status(response.status).json(data);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
