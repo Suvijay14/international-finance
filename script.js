@@ -4,8 +4,6 @@
  * (COMPLETE_MASTER_REFERENCE.md was not present.)
  */
 
-const STORY_MODE = (typeof window !== 'undefined' && window.STORY_MODE) ? window.STORY_MODE : null;
-
 const LANG = {
   en: {
     'nav.grades': 'Grades',
@@ -1986,7 +1984,11 @@ function renderStoryMode() {
 
   if (!container) return;
 
-  if (typeof STORY_MODE === 'undefined') {
+  const storyMode =
+    (typeof STORY_MODE !== 'undefined' && STORY_MODE) ||
+    (typeof window !== 'undefined' ? window.STORY_MODE : null);
+
+  if (!storyMode) {
     console.error('STORY_MODE not defined');
     return;
   }
@@ -2002,7 +2004,7 @@ function renderStoryMode() {
     { id: "IF8", title_en: "Corporate Governance", stories: 7, color: "#FBBF24", priority: "medium" },
     { id: "IF9", title_en: "FDI & Cross-Border M&A", stories: 6, color: "#4F8EF7", priority: "medium" }
   ];
-  const topics = (STORY_MODE && STORY_MODE.topics) ? STORY_MODE.topics : topicsData;
+  const topics = (storyMode && storyMode.topics) ? storyMode.topics : topicsData;
 
   container.innerHTML = `
     <div style="max-width:1100px;margin:0 auto;padding:2rem;">
@@ -2070,9 +2072,21 @@ function navigateToStoryTopic(topicId) {
 }
 
 function renderStoryTopic(topicId) {
-  const stories = STORY_MODE[topicId];
-  const topic = STORY_MODE.topics.find((t) => t.id === topicId);
-  if (!stories || !topic) return;
+  const storyMode =
+    (typeof STORY_MODE !== 'undefined' && STORY_MODE) ||
+    (typeof window !== 'undefined' ? window.STORY_MODE : null);
+
+  const stories = (storyMode && storyMode[topicId]) || (typeof window !== 'undefined' ? window['STORY_' + topicId] : null);
+
+  if (!stories || !Array.isArray(stories)) {
+    console.error('No stories found for', topicId, 'Keys available:', storyMode ? Object.keys(storyMode) : []);
+    return;
+  }
+
+  const topic = (storyMode && Array.isArray(storyMode.topics))
+    ? storyMode.topics.find((t) => t.id === topicId)
+    : null;
+  if (!topic) return;
 
   const container =
     document.getElementById('story-view') ||
