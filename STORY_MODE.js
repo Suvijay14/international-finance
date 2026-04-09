@@ -1,47 +1,21 @@
-(() => {
-  const topics = [
-    { id: "IF1", title_en: "Globalization & the MNC", stories: 6, color: "#34D399", priority: "medium" },
-    { id: "IF2", title_en: "International Monetary System", stories: 7, color: "#FBBF24", priority: "medium" },
-    { id: "IF3", title_en: "Balance of Payments", stories: 8, color: "#4F8EF7", priority: "high" },
-    { id: "IF4", title_en: "Foreign Exchange Market", stories: 10, color: "#F97316", priority: "high" },
-    { id: "IF5", title_en: "PPP & Interest Rate Parity", stories: 10, color: "#A78BFA", priority: "high" },
-    { id: "IF6", title_en: "Futures & Options", stories: 10, color: "#F87171", priority: "high" },
-    { id: "IF7", title_en: "Managing Exposure", stories: 8, color: "#34D399", priority: "high" },
-    { id: "IF8", title_en: "Corporate Governance", stories: 7, color: "#FBBF24", priority: "medium" },
-    { id: "IF9", title_en: "FDI & Cross-Border M&A", stories: 6, color: "#4F8EF7", priority: "medium" }
-  ];
-
-  function makeStory(topicId, idx, title) {
-    const n = idx + 1;
-    const isMcq = n % 2 === 0;
-    return {
-      id: `${topicId}_S${n}`,
-      title: `${title} — Story ${n}`,
-      hook: `A short real-world scenario introduces ${title} with curiosity and surprise.`,
-      concept: `This unit explains one core concept from ${title} in simple language.\n\nIt is designed for sequential learning in Story Mode.`,
-      formula: n % 3 === 0 ? `${topicId} Formula ${n}: value = (new - old) / old` : null,
-      example: `Exam-style example for ${topicId} story ${n}.`,
-      question: isMcq
-        ? {
-            type: "mcq",
-            text: `Quick check for ${topicId} story ${n}: choose the best answer.`,
-            options: ["Option A", "Option B", "Option C", "Option D"],
-            answer: 1,
-            explanation: "Correct answer is Option B. Review the concept and retry if needed."
-          }
-        : {
-            type: "open",
-            text: `In your own words, explain the key idea in ${topicId} story ${n}.`,
-            keywords: ["risk", "rate", "market", "hedge", "value", "currency"],
-            model_answer: `A strong answer defines the concept clearly, applies it to a practical example, and links it to decision-making in international finance.`
-          }
-    };
-  }
-
-  const data = { topics };
-  topics.forEach((t) => {
-    data[t.id] = Array.from({ length: t.stories }, (_, i) => makeStory(t.id, i, t.title_en));
-  });
-
-  window.STORY_MODE = data;
-})();
+window.STORY_MODE = {
+  topics: [
+    { id:"IF1", title_en:"Globalization & the MNC", stories:6, color:"#34D399", priority:"medium" },
+    { id:"IF2", title_en:"International Monetary System", stories:7, color:"#FBBF24", priority:"medium" },
+    { id:"IF3", title_en:"Balance of Payments", stories:8, color:"#4F8EF7", priority:"high" },
+    { id:"IF4", title_en:"Foreign Exchange Market", stories:10, color:"#F97316", priority:"high" },
+    { id:"IF5", title_en:"PPP & Interest Rate Parity", stories:10, color:"#A78BFA", priority:"high" },
+    { id:"IF6", title_en:"Futures & Options", stories:10, color:"#F87171", priority:"high" },
+    { id:"IF7", title_en:"Managing Exposure", stories:8, color:"#34D399", priority:"high" },
+    { id:"IF8", title_en:"Corporate Governance", stories:7, color:"#FBBF24", priority:"medium" },
+    { id:"IF9", title_en:"FDI & Cross-Border M&A", stories:6, color:"#4F8EF7", priority:"medium" }
+  ],
+  IF1: [
+    { id:"IF1_S1", title:"Why did you lose money even though Toyota went up?", hook:"In 2022, a French investor put €10,000 into Toyota shares. Toyota went up 12%. But when he converted his yen back to euros, he only got €9,200. He LOST money even though the stock went UP.", concept:"This is foreign exchange risk. When you invest across borders you face TWO risks — the investment itself AND the currency moving against you.\n\nFOREIGN EXCHANGE RISK: the risk that the currency you hold loses value against your home currency before you can convert back.", formula:null, example:"Toyota shares: +12% in yen. Yen fell 20% vs euro. Net result in euros: negative.", question:{ type:"open", text:"In your own words: what is foreign exchange risk and why does it exist?", keywords:["currency","exchange","convert","rate","loss","border"], model_answer:"Foreign exchange risk is the risk that the exchange rate moves against you before you can convert your money back. It exists because different countries have different currencies that constantly change in value relative to each other." } },
+    { id:"IF1_S2", title:"The four things that make international finance different", hook:"If currencies never moved, governments never changed rules, and markets had no barriers — international finance would just be domestic finance, but bigger. But nothing works perfectly across borders.", concept:"Four dimensions make international finance different from domestic finance:\n\n1. FOREIGN EXCHANGE RISK — currencies fluctuate unpredictably. A profit in dollars can disappear when converted to euros.\n2. POLITICAL RISK — sovereign governments can change rules, seize assets, cancel contracts. No effective recourse.\n3. MARKET IMPERFECTIONS — barriers, costs, and information asymmetry create frictions between markets.\n4. EXPANDED OPPORTUNITY SET — the world is your market. Produce where cheapest, borrow where cheapest, sell everywhere.", formula:null, example:"Apple: designs in California, manufactures in China, sells everywhere, borrows wherever rates are lowest. That is the expanded opportunity set.", question:{ type:"mcq", text:"Globalization makes countries more:", options:["Self-sufficient and independent","Interdependent and specialised","Isolated from each other","Equal in wealth"], answer:1, explanation:"Globalization is the OPPOSITE of self-sufficiency. Countries specialize and trade MORE — becoming MORE interdependent. This is a classic exam trap." } },
+    { id:"IF1_S3", title:"The government cancelled a $2.9 billion deal overnight", hook:"In 1992, Enron signed a $2.9 billion deal to build a power plant in India. They spent $300 million. Three years later, a new government won the election and cancelled the contract. Enron lost everything.", concept:"This is POLITICAL RISK. When you operate inside a foreign sovereign country, that government can change the rules at any time — new taxes, new regulations, outright seizure of assets.\n\nYou cannot sue a sovereign government effectively in your own country's courts. This is the key distinction from business disputes between companies.", formula:null, example:"Other examples: Venezuela nationalizing oil companies in 2007. Russia seizing foreign assets in 2022. Both left foreign investors with massive losses and limited recourse.", question:{ type:"open", text:"What is political risk? Give one example of how it could hurt a company investing abroad.", keywords:["government","sovereign","rules","assets","cancel","recourse","risk"], model_answer:"Political risk is the risk that a sovereign government changes the rules in ways that harm foreign investors — through new taxes, nationalization, or contract cancellation. Investors have limited legal recourse against sovereign governments." } },
+    { id:"IF1_S4", title:"Nestlé had two prices for the same share", hook:"In the 1980s, Swiss investors could buy Nestlé shares for CHF 4,000. Foreigners paid CHF 9,000 for the exact same shares. Same company. Same dividends. Different price based on where you lived.", concept:"This is a MARKET IMPERFECTION. In a perfect market, identical assets sell for the same price everywhere. But legal restrictions, information barriers, and transaction costs create frictions.\n\nNestlé had two share classes — foreigners could only buy bearer shares, creating artificial scarcity and a price premium. On November 18, 1988, Nestlé lifted the restriction. The price gap COLLAPSED immediately.", formula:null, example:"Bearer share price fell from CHF 9,000 to near CHF 6,500 the moment restrictions lifted. Prices converged because that is what prices do when markets are free.", question:{ type:"open", text:"What is a market imperfection? Why did the Nestlé price gap disappear when restrictions were lifted?", keywords:["barrier","restriction","imperfection","price","market","identical","friction"], model_answer:"A market imperfection is a barrier preventing identical assets from trading at the same price. The Nestlé gap disappeared because once all investors could buy both share types, supply and demand pushed prices together — the Law of One Price restored itself." } },
+    { id:"IF1_S5", title:"Why does an MNC exist at all?", hook:"Why would a company operate in 50 countries? It is complicated, expensive, risky. Managing employees in different languages, currencies, legal systems. Why not just stay home and export?", concept:"A Multinational Corporation (MNC) exists because of the EXPANDED OPPORTUNITY SET — the ability to exploit differences between countries:\n\n• Cheaper labour — Denmark $54/hour manufacturing, India $0.80/hour. Move the factory.\n• Lower interest rates — borrow where capital is cheapest.\n• Bigger markets — sell where demand is highest.\n• Lower taxes — structure operations efficiently.\n\nMNCs also benefit from economies of scale: spread R&D costs globally, pool purchasing power.", formula:null, example:"Average manufacturing wages 2020: Denmark $54.46, Germany $47.52, USA $29.08, China $5.77, Vietnam $1.82, India $0.80. These wage gaps are why factories move.", question:{ type:"open", text:"Give two reasons why a company would operate as an MNC rather than staying domestic.", keywords:["labour","cost","market","cheaper","capital","opportunity","produce","tax"], model_answer:"1. Access to cheaper production — labour and materials cost less in certain countries, making manufacturing there more profitable. 2. Access to larger markets — operating locally in a foreign market avoids trade barriers that would make exported goods too expensive." } },
+    { id:"IF1_S6", title:"What does a financial manager actually do internationally?", hook:"You are CFO of a French company selling wine to 40 countries, manufacturing in 3, borrowing in London, with subsidiaries in 15 nations. Every morning the euro has moved. Interest rates changed in Japan. A customer in Brazil cannot pay. Where do you start?", concept:"The goal of international financial management: MAXIMIZE SHAREHOLDER WEALTH while managing three risks:\n\n1. Foreign exchange risk — protect against currency moves\n2. Political risk — avoid or insure against government interference\n3. Market imperfections — exploit them where beneficial, hedge against them where harmful\n\nThe AGENCY PROBLEM adds complexity: managers might pursue their own interests instead of shareholders. This is why corporate governance matters — covered in IF8.", formula:null, example:null, question:{ type:"open", text:"What is the ultimate goal of international financial management? What are the three main risks it manages?", keywords:["shareholder","wealth","maximize","exchange","political","imperfection","risk"], model_answer:"The goal is to maximize shareholder wealth by exploiting global opportunities while managing: (1) Foreign exchange risk — currency movements affecting profits, (2) Political risk — government actions affecting operations, (3) Market imperfections — barriers creating costs and inefficiencies." } }
+  ]
+};
