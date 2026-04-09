@@ -8,6 +8,8 @@ const LANG = {
   en: {
     'nav.grades': 'Grades',
     'nav.doubt': 'Doubt Board',
+    'nav.traps': 'Traps',
+    'nav.mock': 'Mock Exam',
     'nav.back': '← Back to Topics',
     'hero.eyebrow': 'SKEMA Business School',
     'hero.title': 'Pass International Finance',
@@ -63,10 +65,22 @@ const LANG = {
     'formula.title': 'Formula Sheet',
     'mastered': 'Topic Mastered',
     'score': 'Score',
+    'flash.title': 'Flashcard Deck',
+    'flash.sub': 'Work through these before tackling formulas.',
+    'flash.question': 'Question',
+    'flash.reveal': 'Click to reveal',
+    'flash.still': 'Still Learning',
+    'flash.got': 'Got it',
+    'flash.restart': 'Restart Deck',
+    'flash.complete': 'Deck complete. Great work.',
+    'trap.score': 'Score',
+    'mock.model': 'Model answers',
   },
   fr: {
     'nav.grades': 'Notes',
     'nav.doubt': 'Questions',
+    'nav.traps': 'Pièges',
+    'nav.mock': 'Examen blanc',
     'nav.back': '← Retour aux sujets',
     'hero.eyebrow': 'SKEMA Business School',
     'hero.title': 'Réussir Finance Internationale',
@@ -122,6 +136,16 @@ const LANG = {
     'formula.title': 'Formules',
     'mastered': 'Sujet maîtrisé',
     'score': 'Score',
+    'flash.title': 'Deck de cartes mémoire',
+    'flash.sub': 'Travaillez cela avant les formules.',
+    'flash.question': 'Question',
+    'flash.reveal': 'Cliquez pour révéler',
+    'flash.still': 'Encore en apprentissage',
+    'flash.got': 'Maîtrisée',
+    'flash.restart': 'Recommencer le deck',
+    'flash.complete': 'Deck terminé. Excellent.',
+    'trap.score': 'Score',
+    'mock.model': 'Réponses modèles',
   },
 };
 
@@ -149,6 +173,8 @@ function switchLang(lang) {
   renderTopicCards();
   renderView(window.location.hash || '#home', { skipFade: true });
   initGradeCalc();
+  renderTrapTrainer();
+  renderMockExam();
   localStorage.setItem('if-study-lang', currentLang);
 }
 
@@ -1388,7 +1414,117 @@ TOPICS.IF9 = {
   },
 };
 
-const TOPIC_ORDER = ['IF1', 'IF2', 'IF3', 'IF4', 'IF5', 'IF6', 'IF7', 'IF8', 'IF9'];
+const TOPIC_ORDER = ['IF4', 'IF5', 'IF6', 'IF3', 'IF7', 'IF8', 'IF9', 'IF2', 'IF1'];
+const TOPIC_PRIORITY = {
+  IF4: { label: 'HIGH PRIORITY', level: 'high', weight: '20% weight' },
+  IF5: { label: 'HIGH PRIORITY', level: 'high', weight: '27% combined' },
+  IF6: { label: 'HIGH PRIORITY', level: 'high', weight: '24% combined' },
+  IF3: { label: 'HIGH PRIORITY', level: 'high', weight: '10%' },
+  IF7: { label: 'HIGH PRIORITY', level: 'high', weight: '8%' },
+  IF8: { label: 'MEDIUM PRIORITY', level: 'medium', weight: '5%' },
+  IF9: { label: 'MEDIUM PRIORITY', level: 'medium', weight: '5%' },
+  IF2: { label: 'MEDIUM PRIORITY', level: 'medium', weight: '4%' },
+  IF1: { label: 'MEDIUM PRIORITY', level: 'medium', weight: '3%' },
+};
+
+const FLASHCARDS = {
+  IF1: [
+    { type:'definition', front:'What are the 4 key dimensions that make international finance different from domestic finance?', back:'1. Foreign Exchange Risk — uncertain exchange rates can wipe out profits when converting currencies. 2. Political Risk — governments can change rules, seize assets, no effective recourse. 3. Market Imperfections — restrictions, transaction costs, info asymmetry block free flows. 4. Expanded Opportunity Set — produce, raise capital, and sell anywhere globally.', example:'Apple makes iPhones in China, sells in Europe. If the euro weakens, European revenue is worth LESS in dollars — that is foreign exchange risk.' },
+    { type:'application', front:'You invest $1,000 in Toyota shares at $1 = ¥100. Shares rise 10%. But yen falls to $1 = ¥120. What is your dollar return?', back:'Step 1: $1,000 × 100 = ¥100,000. Step 2: ¥100,000 × 1.10 = ¥110,000. Step 3: ¥110,000 / 120 = $916.67. Result: You LOST $83.33 despite shares rising 10%. Currency depreciation wiped out your gain.', formula:'Dollar return ≠ Foreign currency return when exchange rate moves' },
+    { type:'definition', front:'What is political risk?', back:'The risk that a sovereign government changes the rules adversely — unexpected tax changes, regulations, nationalization, or outright expropriation of assets. No effective legal recourse for the foreign investor.', example:'India cancelled Enron\'s $2.9 billion power plant after an election. Enron lost $300M already invested.' }
+  ],
+  IF2: [
+    { type:'definition', front:'What is the Impossible Trinity (Mundell\'s Trilemma)?', back:'A country CANNOT simultaneously have: (1) Fixed exchange rate, (2) Free capital mobility, AND (3) Independent monetary policy. You must sacrifice one. This appears in almost every final exam.', example:'Eurozone: has fixed rates (within) + free capital → gave up independent monetary policy. Each country cannot set its own interest rates.' },
+    { type:'application', front:'EXAM QUESTION: Fixed exchange rates and free capital mobility are jointly incompatible with what?', back:'INDEPENDENT MONETARY POLICY. If you fix your exchange rate AND allow free capital flows, you cannot also set your own interest rates — capital flows will force your rates to match the anchor currency. Answer: C in the MCQ.', formula:'Fixed rate + Free capital = No monetary autonomy' },
+    { type:'definition', front:'What is the Triffin Paradox?', back:'The fundamental contradiction of Bretton Woods: the US had to run balance of payments DEFICITS to supply the world with enough dollar reserves. But deficits eventually undermined confidence in the dollar — making the system self-defeating. Led to collapse in 1971.', formula:'Reserve currency country must run deficits → deficits undermine confidence → system collapses' }
+  ],
+  IF3: [
+    { type:'definition', front:'What is the Balance of Payments?', back:'A statistical record of ALL economic transactions between residents of a country and the rest of the world over a period. Uses double-entry bookkeeping: every transaction has one credit and one debit entry. The total always balances.', formula:'BCA + BKA + BFA + BRA = 0' },
+    { type:'definition', front:'What is the rule for credits and debits in the BoP?', back:'CREDIT (+): Money flows INTO the country — exports, foreign investment in the country, receipts from abroad. DEBIT (−): Money flows OUT — imports, investment abroad, payments to foreigners. Think: credit = someone pays US dollars TO you.', example:'US exports Boeing planes → foreign buyer pays USD → CREDIT to US current account.' },
+    { type:'application', front:'Tesla acquires a French startup for $500M. Where does this appear in France\'s BoP?', back:'France\'s Financial Account CREDIT (+): France received $500M foreign investment — capital inflow. This is FDI inflow, NOT current account. TRAP: FDI is ALWAYS in the financial account, never the current account.', formula:'FDI → Financial Account (NOT Current Account)' }
+  ],
+  IF4: [
+    { type:'definition', front:'What is a direct quote vs indirect quote? (US perspective)', back:'Direct (US): USD per 1 foreign currency unit. EUR/USD = 1.12 means 1 EUR costs $1.12. Indirect (US): foreign currency per 1 USD. USD/EUR = 0.89 means $1 buys €0.89. Direct = 1/Indirect. The base currency is ALWAYS the "one unit."', formula:'Direct = 1/Indirect. Base currency = 1 unit.' },
+    { type:'application', front:'TRAP: EUR/USD changes from 1.2 to 1.5. EUR appreciated by 25%. USD depreciated by what %?', back:'USD depreciated by 20% — NOT 25%. USD/EUR went from 1/1.2=0.833 to 1/1.5=0.667. Change = (0.667-0.833)/0.833 = -20%. Appreciation and depreciation percentages are ALWAYS different. BOTH appear as answer choices.', formula:'% change (base) = (New-Old)/Old × 100. Appreciation ≠ Depreciation %.' },
+    { type:'formula', front:'What is the formula for forward premium/discount? What do positive and negative values mean?', back:'Forward Premium/Discount = (F - S) / S × 100. Annualized: × (360/days) or × (12/months). Positive = base currency at PREMIUM (worth more forward). Negative = base currency at DISCOUNT (worth less forward).', formula:'FP/D = [(F-S)/S] × (360/days) × 100' }
+  ],
+  IF5: [
+    { type:'formula', front:'What is Interest Rate Parity (IRP)? Give the formula.', back:'The forward exchange rate exactly offsets the interest rate differential between two countries. If IRP holds, investing domestically or abroad (with FX hedging) gives the same return.', formula:'F = S × (1 + i_domestic) / (1 + i_foreign). Or: F/S = (1+i_d)/(1+i_f)' },
+    { type:'application', front:'S_USD/GBP = 1.2478, F_USD/GBP = 1.2696, i_GBP = 3.25%. Find i_USD using IRP. (2025 Final Q3)', back:'(1+i_$) = (F/S) × (1+i_£) = (1.2696/1.2478) × 1.0325 = 1.01747 × 1.0325 = 1.05054. i_$ = 5.054% ≈ 5.05%.', formula:'(1+i_d) = (F/S) × (1+i_f)' },
+    { type:'formula', front:'What is Relative PPP? What does it predict?', back:'The exchange rate CHANGE reflects the inflation differential. The country with HIGHER inflation sees its currency DEPRECIATE.', formula:'E[S_t] = S_0 × (1+π_domestic)/(1+π_foreign). Approximate: ΔS/S ≈ π_d - π_f' }
+  ],
+  IF6: [
+    { type:'formula', front:'Futures P&L formulas for long and short positions.', back:'You BOUGHT (long): profit when price RISES. You SOLD (short): profit when price FALLS.', formula:'Long P&L = (S_T - F_0) × Contract Size. Short P&L = (F_0 - S_T) × Contract Size.' },
+    { type:'application', front:'TRAP: You sold corn futures at $1.99/bushel. Spot at maturity = $2.10. Contract = 5,000 bushels. P&L? (2025 Final)', back:'Short: (F_0 - S_T) × size = (1.99 - 2.10) × 5,000 = -$0.11 × 5,000 = -$550 LOSS. You SOLD at $1.99 but market went to $2.10 → you must deliver at $1.99 → LOSS.', formula:'Short profits when price FALLS. If price rises → SHORT LOSES.' },
+    { type:'formula', front:'Option payoffs at expiry — call and put formulas.', back:'Call is valuable when spot EXCEEDS strike (right to buy cheaply). Put is valuable when spot is BELOW strike (right to sell expensively).', formula:'Call payoff = max(0, S_T - X). Put payoff = max(0, X - S_T). Profit = Payoff - Premium.' }
+  ],
+  IF7: [
+    { type:'definition', front:'What are the 3 types of foreign exchange exposure?', back:'1. Transaction: sensitivity of CONTRACTUAL cash flows (receivables/payables) to FX changes. 2. Economic: extent firm VALUE is affected by unexpected FX changes — affects future sales and costs. 3. Translation: potential for CONSOLIDATED financial statements to be affected when converting foreign subsidiaries.', formula:'Transaction = contracts. Economic = firm value. Translation = accounting.' },
+    { type:'application', front:'A US firm has a £10M receivable in 1 year. Spot $1.50/£, Forward $1.46/£. What is the forward hedge and what does it guarantee?', back:'SELL £10M forward at $1.46/£. Guaranteed proceeds = £10M × $1.46 = $14,600,000 regardless of what spot does. If spot falls to $1.30, unhedged would only give $13M — hedge saves $1.6M. If spot rises to $1.60, unhedged gives $16M — hedge gives up $1.4M of upside.', formula:'Forward hedge receivable: proceeds = FC amount × F' },
+    { type:'application', front:'How does an OPTIONS hedge differ from a forward hedge for a receivable?', back:'Forward: locks in rate, eliminates all uncertainty, gives up all upside. Options (buy PUT): gives FLOOR protection but keeps UPSIDE. If spot falls below strike → exercise put, get strike. If spot rises above strike → let put expire, sell at higher market rate. Cost: premium paid upfront.', formula:'Options hedge = guaranteed floor + upside potential - premium cost' }
+  ],
+  IF8: [
+    { type:'definition', front:'What is the agency problem?', back:'Managers (agents) might act in their own short-term best interest instead of shareholders\' (principals\') long-term best interest. When professional managers have small equity stakes in diffusely owned companies, they have both POWER and MOTIVE to engage in self-dealing.', example:'CEO approves a bad acquisition that grows their empire and salary but destroys shareholder value.' },
+    { type:'definition', front:'What are the 8 remedies for the agency problem? (mnemonic: ICCA-DOSM)', back:'I: Independent Board. C: Concentrated Ownership. C: Contracts (Incentive). A: Accounting Transparency. D: Debt. O: Overseas Listing. S: Shareholder Activism. M: Market for Corporate Control (hostile takeover threat).', formula:'ICCA-DOSM: 8 mechanisms that ALL alleviate the agency problem.' },
+    { type:'application', front:'TRAP: Which of the following does NOT alleviate the agency problem? A) Stock options B) Independent board C) Dispersed shareholding D) Debt E) None of the above', back:'Answer: C — Dispersed shareholding is a WEAKNESS of the public corporation, not a remedy. When ownership is dispersed, NO individual shareholder has enough at stake to pay the costs of monitoring management. The remedy is CONCENTRATED ownership, not dispersed.', formula:'Dispersed = weak monitoring. Concentrated = strong monitoring.' }
+  ],
+  IF9: [
+    { type:'definition', front:'What is FDI and how does it differ from portfolio investment?', back:'FDI (Foreign Direct Investment): cross-border investment giving the investor CONTROL (≥10% ownership) and lasting interest in a foreign enterprise. Portfolio: buying stocks/bonds for financial return WITHOUT operational control. FDI appears in the FINANCIAL ACCOUNT of the BoP — tested every year.', formula:'FDI ≥ 10% ownership + control. Portfolio = financial return only. Both in Financial Account.' },
+    { type:'application', front:'Give 3 reasons firms invest overseas and explain each. (Always asked in finals)', back:'1. Trade Barriers: tariffs/quotas block exports → build factory inside target market. Honda Ohio bypasses US import restrictions. 2. Imperfect Labor Market: immigration barriers create wage gaps → move factory to cheap labor. India $0.80/hr vs Denmark $54/hr. 3. Intangible Assets: patents/brands valuable globally; FDI protects from misappropriation. Coca-Cola withdrew from India rather than reveal formula.' },
+    { type:'application', front:'TRAP: Which is NOT a reason for FDI? A) Trade barriers B) Imperfect labor market C) Expropriation of assets D) Product life cycle E) Vertical integration', back:'Answer: C — Expropriation is a RISK of FDI (political risk), NOT a reason TO invest. One final exam specifically tested this. Firms invest overseas DESPITE expropriation risk, not BECAUSE of it.', formula:'Expropriation = risk, not motive.' }
+  ]
+};
+
+const TRAP_TRAINER = [
+  { category: 'Appreciation vs Depreciation (different percentages)', q: 'EUR/USD changes from 1.2 to 1.5. What is the percentage DEPRECIATION of the USD?', options: ['25%','20%','-25%','-20%','None of the above'], answer: 1, explanation: 'EUR appreciated (1.5-1.2)/1.2 = 25%. For USD: USD/EUR went from 0.833 to 0.667. Change = (0.667-0.833)/0.833 = -20%. Appreciation and depreciation percentages are ALWAYS different numbers. The exam puts BOTH as answer choices.' },
+  { category: 'Appreciation vs Depreciation (different percentages)', q: 'CAN/EUR goes from 1.1 to 1.4. EUR has appreciated by:', options: ['21.4%','27.3%','-27.3%','-21.4%','None of the above'], answer: 1, explanation: 'EUR is the BASE currency. % change = (1.4-1.1)/1.1 = 27.3%. CAN depreciated (1.1-1.4)/1.4 = -21.4%. These are DIFFERENT. Always identify which currency the question asks about.' },
+  { category: 'Appreciation vs Depreciation (different percentages)', q: 'USD/GBP spot = 1.42, forward = 1.4109. USD is at a:', options: ['0.642% premium vs GBP','0.642% discount vs GBP','1.284% discount','0.642% premium vs USD','None of the above'], answer: 1, explanation: '(1.4109/1.42)-1 = -0.642%. Fewer USD per GBP forward → USD buys LESS GBP → USD at DISCOUNT. From 2025 final.' },
+  { category: 'None of the Above', q: 'A put option is worth $10. The spot price is $50. What is the strike price?', options: ['$40','$50','$55','$60','None of the above'], answer: 3, explanation: 'Put payoff = max(0, X - S_T). 10 = X - 50. X = $60. If you rushed and picked "None of the above" by mistake, you lost 0.25 points. Always compute first.' },
+  { category: 'None of the Above', q: 'You sold corn futures at $1.99. Spot at maturity = $2.10. Contract size = 5,000 bushels. Profit?', options: ['+$550','-$1,050','+$1,050','-$550','None of the above'], answer: 3, explanation: 'Short: (F_0 - S_T) × size = (1.99 - 2.10) × 5,000 = -$550 LOSS. From 2025 final. Answer D is -$550, which IS one of the choices — don\'t reflexively pick "None."' },
+  { category: 'Forward Premium/Discount — Which Currency', q: 'Spot: ¥119.795/$. 4-month forward: ¥118.397/$. Annualised forward premium/discount on USD?', options: ['3.5% premium','3.5% discount','4.5% premium','4.5% discount','None of the above'], answer: 1, explanation: 'Fewer yen per dollar forward → dollar buys LESS yen → USD at DISCOUNT. (118.397/119.795 - 1) × 3 = -3.5%. Annualised = -3.5% per year. USD is at a 3.5% DISCOUNT.' },
+  { category: 'Bid-Ask Direction', q: 'EUR/USD: Bid 1.08, Ask 1.09. A US traveller returning from Europe wants to SELL euros. What rate?', options: ['1.09','1.085','1.08','Depends on amount','None of the above'], answer: 2, explanation: 'Traveller SELLS EUR → bank BUYS EUR at the BID = 1.08. Customer always gets the worse rate. If you\'re SELLING, you get the BID (lower). If you\'re BUYING, you pay the ASK (higher).' },
+  { category: 'Bid-Ask Direction', q: 'The ASK price is the price at which the bank is willing to:', options: ['Buy the base currency','Sell the base currency','Buy the quote currency','Sell the quote currency','None of the above'], answer: 1, explanation: 'ASK = bank SELLS the BASE currency. BID = bank BUYS the base currency. Simple but frequently tested.' },
+  { category: 'Call vs Put Direction', q: 'You bought a put option on EUR with strike $1.10. Spot at expiry = $1.05. Do you exercise?', options: ['No — the put is out of the money','Yes — you profit $0.05 per EUR','No — calls are exercised when spot < strike','Yes — but only if you own EUR','None of the above'], answer: 1, explanation: 'Long PUT = right to SELL EUR at $1.10. Spot = $1.05. Exercising lets you sell at $1.10 when market only offers $1.05 → profit of $0.05 per EUR. The put is IN the money (spot < strike).' },
+  { category: 'Call vs Put Direction', q: 'A written (short) call option: profit is:', options: ['Unlimited when price rises','Limited to the premium received','Zero if not exercised','Equal to the payoff of a long put','None of the above'], answer: 1, explanation: 'Short call writer: maximum profit = premium received. If price never exceeds strike, option expires worthless, writer keeps premium. But if price rises above strike: writer faces UNLIMITED loss.' },
+  { category: 'Futures P&L Sign', q: 'You bought gold futures at $1,500/oz. At maturity, spot = $1,400/oz. Contract = 100 oz. P&L?', options: ['$10,000 profit','$10,000 loss','$14,000 profit','$15,000 loss','None of the above'], answer: 1, explanation: 'Long: (S_T - F_0) × size = (1,400 - 1,500) × 100 = -$10,000. You BOUGHT at $1,500 and the market is only worth $1,400 → loss. Many students put the wrong sign.' },
+  { category: 'Futures P&L Sign', q: 'You SOLD 3 EUR September futures at $1.08/€. Spot at maturity = $1.12/€. Size = 125,000 EUR each. P&L?', options: ['+$15,000','-$15,000','+$45,000','-$45,000','None of the above'], answer: 1, explanation: 'Short: (F_0 - S_T) × size × contracts = (1.08 - 1.12) × 125,000 × 3 = -$0.04 × 375,000 = -$15,000 LOSS. You sold at $1.08, market went to $1.12 → you lost.' },
+  { category: 'Put Option Strike Calculation', q: 'A put option is worth $20. Spot = $70. What is the strike price?', options: ['$50','$70','$80','$90','None of the above'], answer: 3, explanation: 'Put payoff = max(0, X - S_T). 20 = X - 70. X = $90. From 2024 final. Key formula: Strike = Spot + Put Value (when option is in the money).' },
+  { category: 'Put Option Strike Calculation', q: 'A put option with strike $95 expires when spot = $80. What is the put worth?', options: ['$0','$15','$80','$95','None of the above'], answer: 1, explanation: 'Put payoff = max(0, 95 - 80) = $15. Spot < Strike → in the money → worth Strike - Spot.' }
+];
+
+const MOCK_EXAM = {
+  mcq: [
+    { q: 'Globalization:', options: ['Causes countries to become more self-sufficient','Facilitates easy movement of goods, capital and services across borders','Has no effect on international trade','Is primarily a post-2010 phenomenon','None of the other answers'], answer: 1, explanation: 'Keywords: movement, goods, capital, services' },
+    { q: 'In the Balance of Payments, which belongs to the FINANCIAL ACCOUNT?', options: ['Worker remittances sent home from abroad','Exports of goods','Foreign Direct Investment by a domestic firm','Primary income (interest and dividends)','None of the other answers'], answer: 2, explanation: 'FDI → Financial Account. Others → Current Account.' },
+    { q: 'EUR/GBP changes from 0.88 to 0.90. Which is TRUE?', options: ['GBP has appreciated 2.27%','EUR has appreciated 2.27%','GBP has depreciated 2.22%','EUR has depreciated 2.27%','None of the other answers'], answer: 1, explanation: 'EUR/GBP: EUR is base. (0.90-0.88)/0.88 = 2.27%. EUR appreciated.' },
+    { q: 'You sold one wheat futures at $6.50/bushel. Spot at maturity = $6.80/bushel. Contract = 5,000 bushels. P&L?', options: ['$1,500 profit','$1,500 loss','$2,500 loss','$2,500 profit','None of the other answers'], answer: 1, explanation: 'Short: (6.50-6.80)×5,000 = -$1,500 LOSS.' },
+    { q: 'Stock spot = $80. May put worth $15. What is the exercise price?', options: ['$65','$80','$95','$15','None of the other answers'], answer: 2, explanation: 'max(0,X-80)=15 → X=$95.' },
+    { q: 'i_US=4.5%, i_EUR=2%, Spot EUR/USD=1.0850. 1-year forward under IRP?', options: ['1.0850','1.1120','1.1117','1.0583','None of the other answers'], answer: 2, explanation: 'F = 1.0850×(1.045/1.02) = 1.1116 ≈ 1.1117.' },
+    { q: 'Which does NOT alleviate the agency problem?', options: ['Independent board','Incentive contracts','Concentrated ownership','Dispersed shareholding with no monitoring','None of the other answers'], answer: 3, explanation: 'Dispersed shareholding = WEAKNESS (weak monitoring). All others = remedies.' },
+    { q: 'Tesla\'s acquisition of a French startup appears in which account of France\'s BoP?', options: ['Current Account (Services)','Current Account (Primary Income)','Capital Account','Financial Account','None of the other answers'], answer: 3, explanation: 'FDI → Financial Account. Always.' }
+  ],
+  problems: [
+    { q: 'P1: CAN/EUR changes from 1.40 to 1.25. What is % change for EUR? Appreciation or depreciation?', answer: '-10.71', model: 'EUR is base. (1.25-1.40)/1.40 = -10.71%. EUR DEPRECIATED by 10.71%.' },
+    { q: 'P2: Spot USD/GBP=1.2478, Forward=1.2696, i_GBP=3.25%. Find i_USD.', answer: '5.05', model: '(1+i_$) = (1.2696/1.2478)×1.0325 = 1.05054 → i_$ = 5.05%' },
+    { q: 'P3: US basket=$500, Japan basket=¥55,000, Spot=¥110/$. Is USD correctly valued under absolute PPP?', answer: 'correctly', model: 'PPP rate = ¥55,000/$500 = ¥110/$. Current = ¥110/$. CORRECTLY VALUED under PPP.' },
+    { q: 'P4: Long 3 EUR September futures at $1.08/€. Maturity spot=$1.12/€. Size=125,000 EUR. Total P&L?', answer: '15000', model: '(1.12-1.08)×125,000×3 = $15,000 PROFIT.' },
+    { q: 'P5: Stock=$100. Call option with strike $95 about to expire. Option worth?', answer: '5', model: 'Call payoff = max(0, 100-95) = $5.' },
+    { q: 'P6: Sold corn futures at $7.50/bushel. Maturity spot=$6.90. Size=5,000 bushels. P&L?', answer: '3000', model: 'Short: (7.50-6.90)×5,000 = $3,000 PROFIT.' },
+    { q: 'P7: Forward USD/EUR=1.0572, Spot=1.0420, i_EUR=3%. Find i_USD.', answer: '4.50', model: '(1+i_$) = (1.0572/1.0420)×1.03 = 1.04503 → i_$ = 4.50%' }
+  ],
+  oq: [
+    { q: 'OQ1: List and explain 2 features that make International Finance different from domestic finance.', keywords: ['foreign exchange','political risk','market imperfections','opportunity','currency','sovereign'], model: 'Foreign Exchange Risk and Political Risk are core distinctions.' },
+    { q: 'OQ2: Define the Balance of Payments. Why is it useful to analyse? Give 2 reasons.', keywords: ['statistical record','transactions','currency','forecasting','competitiveness','policy'], model: 'BoP records all resident-vs-rest-of-world transactions and helps currency forecasting and competitiveness analysis.' },
+    { q: 'OQ3: Cross-rates: USD/JPY=150, USD/CHF=0.92. What is JPY/CHF?', keywords: ['163.04'], model: 'JPY/CHF = 150/0.92 = 163.04.' },
+    { q: 'OQ4: IRP: Spot EUR/USD=1.10, i_US=5%, i_EU=2%. Calculate 1-year forward rate.', keywords: ['1.1324'], model: 'F = 1.10×(1.05/1.02) = 1.1324.' },
+    { q: 'OQ5: Invest $1M: US rate=5.25%, UK rate=4.25%, Spot=1.2225 USD/GBP, Forward=1.2588. Where?', keywords: ['uk','1073455'], model: 'UK investment gives $1,073,455; invest in UK.' },
+    { q: 'OQ6: Explain absolute PPP. US basket=$400, UK basket=£250, Spot=$1.50/£. Is USD correctly valued?', keywords: ['law of one price','price level','basket','overvalued','undervalued','equilibrium'], model: 'PPP is $1.60/£ vs actual $1.50/£, so USD is overvalued.' },
+    { q: 'OQ7: US firm sold €2M of goods to Germany. Payment in 1 year. Forward = $1.10/€. Forward hedge?', keywords: ['sell','forward','2200000','guaranteed'], model: 'Sell €2M forward at $1.10/€; lock $2.2M.' },
+    { q: 'OQ8: Buy silver futures at $25/oz, 100 oz. Spot at maturity = $30/oz. Profit? What if SOLD instead?', keywords: ['500','-500','long','short'], model: 'Long +$500, short -$500.' },
+    { q: 'OQ9: What is transaction exposure? Name 2 instruments to hedge it.', keywords: ['contractual','receivables','payables','forward','options','money market','exchange rate'], model: 'Sensitivity of contractual cash flows; hedge with forwards/options/money market.' },
+    { q: 'OQ10: Give 3 reasons why firms invest overseas. Explain each.', keywords: ['trade barriers','labor','intangible','vertical','product cycle','diversification'], model: 'Trade barriers, labor market imperfections, and intangibles are key motives.' }
+  ]
+};
 
 const rendered = new Set();
 
@@ -1430,11 +1566,43 @@ function renderTopicSection(id) {
       </div>
     </div>
     ${renderLevel1(id, t)}
+    ${renderFlashcardDeck(id)}
     ${renderLevel2(id, t)}
     ${renderLevel3(id, t)}
     ${renderLevel4(id, t)}
     ${renderLevel5(id, t)}
   </section>`;
+}
+
+function renderFlashcardDeck(id) {
+  const cards = FLASHCARDS[id] || [];
+  const state = {
+    queue: shuffle(cards.map((c, i) => ({ ...c, _id: `${id}-${i}` }))),
+    mastered: 0,
+    total: cards.length,
+  };
+  window.__flashState = window.__flashState || {};
+  window.__flashState[id] = state;
+  if (!cards.length) return '';
+  return `
+  <article class="level-card flashcard-shell" id="${id}-flashcards">
+    <div class="level-head">
+      <h3><span class="level-dot" aria-hidden="true"></span>${tr('flash.title')}</h3>
+      <p class="level-sub">${tr('flash.sub')}</p>
+    </div>
+    <div class="progress-line"><div class="progress-fill" id="${id}-flash-progress"></div></div>
+    <p id="${id}-flash-count">0 / ${cards.length} mastered</p>
+    <div id="${id}-flash-body"></div>
+  </article>`;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function renderLevel1(id, t) {
@@ -1659,6 +1827,7 @@ function renderLevel5(id, t) {
       <div id="${id}-l5c-result" hidden></div>
     </div>
     <div class="badge-row" id="${id}-l5-badge" hidden></div>
+    <div class="continue-row"><a class="btn btn-outline" href="#mock-exam">Take the Mock Exam</a></div>
   </article>`;
 }
 
@@ -1682,7 +1851,7 @@ function ensureTopicRendered(id) {
 function parseHash(hash) {
   const raw = (hash || '').replace(/^#/, '').trim() || 'home';
   if (raw === 'home' || raw === '') return { type: 'home', scrollTo: null };
-  const homeAnchors = ['grade-calc', 'doubt-board', 'hero', 'topic-picker'];
+  const homeAnchors = ['grade-calc', 'doubt-board', 'hero', 'topic-picker', 'trap-trainer', 'mock-exam'];
   if (homeAnchors.includes(raw)) return { type: 'home', scrollTo: raw };
   const topicPrefix = raw.match(/^(IF\d+)/);
   if (topicPrefix) {
@@ -1767,7 +1936,7 @@ function initSpaRouter() {
   document.querySelectorAll('.nav-scroll-home').forEach((a) => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = a.getAttribute('data-scroll-target');
+      const target = a.getAttribute('data-scroll-target') || (a.getAttribute('href') || '').replace('#', '');
       if (target) {
         window.location.hash = target;
       }
@@ -1780,12 +1949,14 @@ function renderTopicCards() {
   if (!grid) return;
   grid.innerHTML = TOPIC_ORDER.map((id) => {
     const t = TOPICS[id];
+    const p = TOPIC_PRIORITY[id];
     if (!t) return '';
     return `
       <article class="topic-card" data-topic-id="${id}">
         <span class="topic-card-badge">${id}</span>
+        ${p ? `<span class="priority-pill ${p.level}">${p.label}</span>` : ''}
         <h3 class="topic-card-title">${escapeHtml(t.title)}</h3>
-        <p class="topic-card-tagline">${escapeHtml(t.tagline)}</p>
+        <p class="topic-card-tagline">${escapeHtml(t.tagline)}${p ? ` · ${p.weight}` : ''}</p>
         <a href="#${id}" class="btn btn-primary topic-card-cta">${tr('btn.start')}</a>
       </article>`;
   }).join('');
@@ -1793,6 +1964,7 @@ function renderTopicCards() {
 
 function initTopicInteractions(id) {
   const t = TOPICS[id];
+  initFlashcards(id);
   initMCQ1(id, t);
   document.querySelectorAll(`#topic-${id} .term-pill`).forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -1913,6 +2085,71 @@ function initTopicInteractions(id) {
       updateNavBadges();
     });
   }
+}
+
+function initFlashcards(id) {
+  const state = window.__flashState && window.__flashState[id];
+  const body = document.getElementById(`${id}-flash-body`);
+  if (!state || !body) return;
+  const renderCard = () => {
+    if (!state.queue.length) {
+      body.innerHTML = `<div class="final-answer">${tr('flash.complete')}</div><button type="button" class="btn btn-primary" id="${id}-flash-restart">${tr('flash.restart')}</button>`;
+      document.getElementById(`${id}-flash-restart`)?.addEventListener('click', () => {
+        const original = FLASHCARDS[id].map((c, i) => ({ ...c, _id: `${id}-${i}` }));
+        state.queue = shuffle(original);
+        state.mastered = 0;
+        updateProgress();
+        renderCard();
+      });
+      return;
+    }
+    const card = state.queue[0];
+    const typeCls = `flash-type-${card.type}`;
+    body.innerHTML = `
+      <div class="flashcard-wrap">
+        <div class="flashcard" id="${id}-flashcard">
+          <div class="flash-face front">
+            <div class="flash-meta"><span class="flash-type-pill ${typeCls}">${card.type}</span><span>${tr('flash.question')}</span></div>
+            <h4>${escapeHtml(card.front)}</h4>
+            <p style="position:absolute;bottom:12px;right:16px;color:var(--text-secondary)">${tr('flash.reveal')}</p>
+          </div>
+          <div class="flash-face back">
+            <div class="flash-meta"><span class="flash-type-pill ${typeCls}">${card.type}</span><span>Answer</span></div>
+            <p>${escapeHtml(card.back)}</p>
+            ${card.formula ? `<div class="formula-box">${escapeHtml(card.formula)}</div>` : ''}
+            ${card.example ? `<p><strong>Example:</strong> ${escapeHtml(card.example)}</p>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="flash-actions" id="${id}-flash-actions" hidden>
+        <button class="btn btn-danger" type="button" id="${id}-flash-still">${tr('flash.still')}</button>
+        <button class="btn btn-success" type="button" id="${id}-flash-got">${tr('flash.got')}</button>
+      </div>`;
+    const cardEl = document.getElementById(`${id}-flashcard`);
+    cardEl?.addEventListener('click', () => {
+      cardEl.classList.toggle('is-flipped');
+      document.getElementById(`${id}-flash-actions`).hidden = !cardEl.classList.contains('is-flipped');
+    });
+    document.getElementById(`${id}-flash-still`)?.addEventListener('click', () => {
+      state.queue.push(state.queue.shift());
+      renderCard();
+    });
+    document.getElementById(`${id}-flash-got`)?.addEventListener('click', () => {
+      state.queue.shift();
+      state.mastered += 1;
+      updateProgress();
+      renderCard();
+    });
+  };
+  const updateProgress = () => {
+    const fill = document.getElementById(`${id}-flash-progress`);
+    const count = document.getElementById(`${id}-flash-count`);
+    const pct = state.total ? (state.mastered / state.total) * 100 : 0;
+    if (fill) fill.style.width = `${pct}%`;
+    if (count) count.textContent = `${state.mastered} / ${state.total} mastered`;
+  };
+  updateProgress();
+  renderCard();
 }
 
 function initMCQ1(id, t) {
@@ -2092,6 +2329,138 @@ function initL2AnswerDelegation() {
   });
 }
 
+function renderTrapTrainer() {
+  const mount = document.getElementById('trap-trainer-mount');
+  if (!mount) return;
+  let idx = 0;
+  let score = 0;
+  const selected = new Array(TRAP_TRAINER.length).fill(null);
+  const categoryMistakes = {};
+  const draw = () => {
+    if (idx >= TRAP_TRAINER.length) {
+      const bad = Object.entries(categoryMistakes).filter(([, v]) => v > 0).map(([k]) => k);
+      mount.innerHTML = `<div class="trap-shell"><h3>You would score ${score.toFixed(2)}/7 — here are the traps you fell for</h3><p>${bad.length ? bad.join(' | ') : 'No major trap errors.'}</p><button class="btn btn-primary" id="trap-restart">Retry</button></div>`;
+      document.getElementById('trap-restart')?.addEventListener('click', renderTrapTrainer);
+      return;
+    }
+    const q = TRAP_TRAINER[idx];
+    mount.innerHTML = `<div class="trap-shell"><p><strong>${tr('trap.score')}:</strong> ${score.toFixed(2)} / 7</p><p><strong>Q${idx + 1}</strong> (${q.category})<br />${escapeHtml(q.q)}</p><div class="mcq-grid">${q.options.map((o, oi) => `<button class="mcq-option trap-opt" data-oi="${oi}">${String.fromCharCode(65 + oi)}) ${escapeHtml(o)}</button>`).join('')}</div><button class="btn btn-outline" id="trap-skip">Blank (0)</button><div id="trap-exp" style="margin-top:0.8rem" hidden></div></div>`;
+    mount.querySelectorAll('.trap-opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pick = Number(btn.getAttribute('data-oi'));
+        selected[idx] = pick;
+        if (pick === q.answer) score += 1;
+        else {
+          score -= 0.25;
+          categoryMistakes[q.category] = (categoryMistakes[q.category] || 0) + 1;
+        }
+        const exp = document.getElementById('trap-exp');
+        exp.hidden = false;
+        exp.innerHTML = `<p><strong>Answer:</strong> ${String.fromCharCode(65 + q.answer)}</p><p>${escapeHtml(q.explanation)}</p><button class="btn btn-primary" id="trap-next">Next</button>`;
+        document.getElementById('trap-next')?.addEventListener('click', () => { idx += 1; draw(); });
+      });
+    });
+    document.getElementById('trap-skip')?.addEventListener('click', () => {
+      idx += 1;
+      draw();
+    });
+  };
+  draw();
+}
+
+function renderMockExam() {
+  const mount = document.getElementById('mock-exam-mount');
+  if (!mount) return;
+  let part1 = 0;
+  let part2 = 0;
+  let part3 = 0;
+  let unlocked = 1;
+  let seconds = 2 * 60 * 60;
+  let timerOn = true;
+  mount.innerHTML = `<div class="mock-shell">
+    <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap">
+      <p class="mock-timer" id="mock-timer">02:00:00</p>
+      <label><input type="checkbox" id="mock-timer-toggle" checked /> Timer enabled</label>
+    </div>
+    <div class="mock-part" id="mock-p1"></div>
+    <div class="mock-part mock-locked" id="mock-p2"></div>
+    <div class="mock-part mock-locked" id="mock-p3"></div>
+    <div class="mock-part" id="mock-final" hidden></div>
+  </div>`;
+  const tick = () => {
+    if (!timerOn || seconds <= 0) return;
+    seconds -= 1;
+    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    const el = document.getElementById('mock-timer');
+    if (el) el.textContent = `${h}:${m}:${s}`;
+  };
+  window.setInterval(tick, 1000);
+  document.getElementById('mock-timer-toggle')?.addEventListener('change', (e) => { timerOn = e.target.checked; });
+
+  const p1El = document.getElementById('mock-p1');
+  p1El.innerHTML = `<h3>Part I: 8 MCQs | +1 / 0 / -0.25</h3>${MOCK_EXAM.mcq.map((q, i) => `<div><p><strong>MCQ${i + 1}:</strong> ${escapeHtml(q.q)}</p><div class="mcq-grid">${q.options.map((o, oi) => `<label><input type="radio" name="mcq-${i}" value="${oi}" /> ${String.fromCharCode(65 + oi)}) ${escapeHtml(o)}</label>`).join('')}</div></div>`).join('')}<button class="btn btn-primary" id="submit-p1">Submit Part I</button><div id="p1-feedback"></div>`;
+  document.getElementById('submit-p1')?.addEventListener('click', () => {
+    part1 = 0;
+    MOCK_EXAM.mcq.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="mcq-${i}"]:checked`);
+      if (!selected) return;
+      if (Number(selected.value) === q.answer) part1 += 1;
+      else part1 -= 0.25;
+    });
+    unlocked = 2;
+    document.getElementById('p1-feedback').textContent = `Part I score: ${part1.toFixed(2)} / 8`;
+    document.getElementById('mock-p2').classList.remove('mock-locked');
+    renderPart2();
+  });
+
+  const renderPart2 = () => {
+    const p2El = document.getElementById('mock-p2');
+    p2El.innerHTML = `<h3>Part II: 7 Open Problems</h3>${MOCK_EXAM.problems.map((p, i) => `<div><p>${escapeHtml(p.q)}</p><input id="p2-${i}" type="text" style="width:100%;min-height:44px" /></div>`).join('')}<button class="btn btn-primary" id="submit-p2">Submit Part II</button><div id="p2-feedback"></div>`;
+    document.getElementById('submit-p2')?.addEventListener('click', () => {
+      part2 = 0;
+      MOCK_EXAM.problems.forEach((p, i) => {
+        const val = document.getElementById(`p2-${i}`).value.trim().toLowerCase();
+        if (!val) return;
+        if (val.includes(String(p.answer).toLowerCase())) part2 += 1;
+      });
+      unlocked = 3;
+      document.getElementById('p2-feedback').textContent = `Part II score: ${part2.toFixed(2)} / 7`;
+      document.getElementById('mock-p3').classList.remove('mock-locked');
+      renderPart3();
+    });
+  };
+
+  const renderPart3 = () => {
+    const p3El = document.getElementById('mock-p3');
+    p3El.innerHTML = `<h3>Part III: 10 Open Questions</h3>${MOCK_EXAM.oq.map((q, i) => `<div><p>${escapeHtml(q.q)}</p><textarea id="p3-${i}" rows="4" style="width:100%"></textarea></div>`).join('')}<button class="btn btn-primary" id="submit-p3">Submit Part III</button><button class="btn btn-outline" id="show-model">${tr('mock.model')}</button><div id="p3-feedback"></div><div id="model-answers" hidden>${MOCK_EXAM.oq.map((q, i) => `<p><strong>OQ${i + 1}:</strong> ${escapeHtml(q.model)}</p>`).join('')}</div>`;
+    document.getElementById('submit-p3')?.addEventListener('click', () => {
+      part3 = 0;
+      MOCK_EXAM.oq.forEach((q, i) => {
+        const ans = document.getElementById(`p3-${i}`).value.toLowerCase();
+        const match = q.keywords.filter((k) => ans.includes(k.toLowerCase())).length;
+        const ratio = q.keywords.length ? match / q.keywords.length : 0;
+        part3 += ratio * 1.5;
+      });
+      const total = part1 + part2 + part3;
+      const grade = total >= 25 ? 'Excellent' : total >= 20 ? 'Good' : total >= 15 ? 'Pass' : 'Below Pass';
+      const weak = [];
+      if (part1 < 6) weak.push('Part I');
+      if (part2 < 5) weak.push('Part II');
+      if (part3 < 10) weak.push('Part III');
+      const final = document.getElementById('mock-final');
+      final.hidden = false;
+      final.innerHTML = `<h3>Final score: ${total.toFixed(2)} / 30</h3><p>Part I: ${part1.toFixed(2)} | Part II: ${part2.toFixed(2)} | Part III: ${part3.toFixed(2)}</p><p>Grade: ${grade}</p><p>You struggled with: ${weak.join(', ') || 'No major weaknesses'}</p><button class="btn btn-primary" id="retry-mock">Retry</button>`;
+      document.getElementById('retry-mock')?.addEventListener('click', renderMockExam);
+    });
+    document.getElementById('show-model')?.addEventListener('click', () => {
+      const m = document.getElementById('model-answers');
+      m.hidden = !m.hidden;
+    });
+  };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const savedLang = localStorage.getItem('if-study-lang');
   if (savedLang === 'fr') currentLang = 'fr';
@@ -2105,6 +2474,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initFormulaModal();
   updateNavBadges();
+  renderTrapTrainer();
+  renderMockExam();
   switchLang(currentLang);
   if (window.initSupabaseUI) window.initSupabaseUI();
 });

@@ -26,6 +26,8 @@
         <a href="#IF9" class="nav-topic-link" data-topic="IF9">IF9</a>
       </nav>
       <div class="nav-actions nav-right">
+        <a href="#trap-trainer" class="nav-link nav-btn nav-scroll-home">Traps</a>
+        <a href="#mock-exam" class="nav-link nav-btn nav-scroll-home">Mock Exam</a>
         <a href="#grade-calc" class="nav-link nav-btn nav-scroll-home" data-scroll-target="grade-calc" data-i18n="nav.grades">Grades</a>
         <a href="#doubt-board" class="nav-link nav-btn nav-scroll-home" data-scroll-target="doubt-board" data-i18n="nav.doubt">Doubt Board</a>
         <div class="lang-toggle" aria-label="Language toggle">
@@ -64,6 +66,13 @@
           <p class="hero-exam exam-info-strip" data-i18n="hero.exam.info">4 MCQ + 18 Open Questions · 2 hours · Closed book</p>
         </section>
 
+        <section class="priority-banner" aria-label="Exam priority topics">
+          <div class="priority-banner-track">
+            <span>FX Market 6/6 Finals · IRP 6/6 Finals · PPP 6/6 Finals · Futures 6/6 Finals · Options 6/6 Finals · BoP 6/6 Finals · "None of the above" correct 2-4x per exam · Appreciation ≠ Depreciation % ·</span>
+            <span>FX Market 6/6 Finals · IRP 6/6 Finals · PPP 6/6 Finals · Futures 6/6 Finals · Options 6/6 Finals · BoP 6/6 Finals · "None of the above" correct 2-4x per exam · Appreciation ≠ Depreciation % ·</span>
+          </div>
+        </section>
+
         <section class="section grade-section" id="grade-calc">
           <h2 data-i18n="grade.title">How Many Marks Do You Need?</h2>
           <div class="grade-inputs">
@@ -94,7 +103,31 @@
         <section class="section topic-picker-section" id="topic-picker">
           <h2 data-i18n="hero.choose">Choose a topic to begin</h2>
           <p class="section-sub">Pick one module — you’ll study it full screen, one topic at a time.</p>
+          <div class="feature-cards">
+            <article class="feature-card">
+              <h3>The 7 Exam Traps — Don't Lose Easy Points</h3>
+              <p>Practice trap-focused MCQs with real negative marking (+1 / 0 / -0.25).</p>
+              <a href="#trap-trainer" class="btn btn-primary">Open Trap Trainer</a>
+            </article>
+            <article class="feature-card">
+              <h3>Take the Mock Exam</h3>
+              <p>8 MCQ + 7 problems + 10 open questions in one timed, full 30-point simulation.</p>
+              <a href="#mock-exam" class="btn btn-primary">Start Mock Exam</a>
+            </article>
+          </div>
           <div id="topic-cards-grid" class="topic-cards-grid" aria-label="Topics"></div>
+        </section>
+
+        <section class="section" id="trap-trainer">
+          <h2>Trap Trainer</h2>
+          <p class="section-sub">The 7 Exam Traps — Don't Lose Easy Points</p>
+          <div id="trap-trainer-mount"></div>
+        </section>
+
+        <section class="section" id="mock-exam">
+          <h2>Mock Exam</h2>
+          <p class="section-sub">Timed full exam matching 2025 final format.</p>
+          <div id="mock-exam-mount"></div>
         </section>
 
         <section class="section doubt-section" id="doubt-board">
