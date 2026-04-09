@@ -1834,9 +1834,9 @@ function renderLevel5(id, t) {
 function mountTopics() {
   const mount = document.getElementById('topics-mount');
   if (!mount) return;
-  mount.innerHTML = TOPIC_ORDER.map(
+  mount.innerHTML = `<div id="story-route" class="topic-route story-route" style="display:none"></div>${TOPIC_ORDER.map(
     (id) => `<div id="topic-${id}" class="topic-route topic-page" data-topic-wrap="${id}" style="display:none"></div>`
-  ).join('');
+  ).join('')}`;
 }
 
 function ensureTopicRendered(id) {
@@ -1851,6 +1851,9 @@ function ensureTopicRendered(id) {
 function parseHash(hash) {
   const raw = (hash || '').replace(/^#/, '').trim() || 'home';
   if (raw === 'home' || raw === '') return { type: 'home', scrollTo: null };
+  if (raw === 'story') return { type: 'story', topicId: null };
+  const storyTopic = raw.match(/^story-(IF\d+)$/);
+  if (storyTopic) return { type: 'story', topicId: storyTopic[1] };
   const homeAnchors = ['grade-calc', 'doubt-board', 'hero', 'topic-picker', 'trap-trainer', 'mock-exam'];
   if (homeAnchors.includes(raw)) return { type: 'home', scrollTo: raw };
   const topicPrefix = raw.match(/^(IF\d+)/);
@@ -1887,6 +1890,11 @@ function renderView(hash, options) {
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    } else if (parsed.type === 'story') {
+      renderStoryRoute(parsed.topicId);
+      const se = document.getElementById('story-route');
+      if (se) se.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (parsed.type === 'topic') {
       ensureTopicRendered(parsed.id);
       const te = document.getElementById(`topic-${parsed.id}`);
@@ -1960,6 +1968,231 @@ function renderTopicCards() {
         <a href="#${id}" class="btn btn-primary topic-card-cta">${tr('btn.start')}</a>
       </article>`;
   }).join('');
+}
+
+const storyState = {
+  topicId: null,
+  progress: {},
+};
+
+function getStoryDataset() {
+  return typeof window !== 'undefined' && window.STORY_MODE ? window.STORY_MODE : null;
+}
+
+function getStoryTopicById(topicId) {
+  const data = getStoryDataset();
+  if (!data || !Array.isArray(data.topics)) return null;
+  return data.topics.find((t) => t.id === topicId) || null;
+}
+
+function getStoryList(topicId) {
+  const data = getStoryDataset();
+  if (!data || !topicId || !Array.isArray(data[topicId])) return [];
+  return data[topicId];
+}
+
+function getStoryProgress(topicId) {
+  if (!storyState.progress[topicId]) {
+    storyState.progress[topicId] = { index: 0, complete: false, answered: {} };
+  }
+  return storyState.progress[topicId];
+}
+
+function storyRouteHtml(topicId) {
+  const data = getStoryDataset();
+  if (!data) {
+    return `
+      <section class="topic-section story-shell">
+        <nav class="topic-breadcrumb"><a href="#home" class="breadcrumb-back">← Back to Home</a></nav>
+        <div class="topic-banner">
+          <h2>Story Mode</h2>
+          <p class="topic-tagline">Missing \`STORY_MODE.js\`. Add the file and reload.</p>
+        </div>
+      </section>
+    `;
+  }
+
+  if (!topicId) {
+    const cards = data.topics
+      .map(
+        (t) => `
+      <article class="topic-card story-topic-card" style="border-left:4px solid ${escapeHtml(t.color || '#4F8EF7')}">
+        <span class="topic-card-badge">${escapeHtml(t.id)}</span>
+        <span class="priority-pill ${escapeHtml(t.priority || 'medium')}">${escapeHtml((t.priority || 'medium').toUpperCase())} PRIORITY</span>
+        <h3 class="topic-card-title">${escapeHtml(currentLang === 'fr' ? t.title_fr : t.title_en)}</h3>
+        <p class="topic-card-tagline">${escapeHtml(String(t.stories || getStoryList(t.id).length))} stories</p>
+        <a href="#story-${escapeHtml(t.id)}" class="btn btn-primary topic-card-cta">Begin</a>
+      </article>`
+      )
+      .join('');
+    return `
+      <section class="topic-section story-shell">
+        <nav class="topic-breadcrumb"><a href="#home" class="breadcrumb-back">← Back to Home</a></nav>
+        <div class="topic-banner">
+          <span class="topic-badge">Story Mode</span>
+          <h2>${escapeHtml(currentLang === 'fr' ? data.meta.title_fr : data.meta.title_en)}</h2>
+          <p class="topic-tagline">${escapeHtml(currentLang === 'fr' ? data.meta.instruction_fr : data.meta.instruction_en)}</p>
+        </div>
+        <div class="topic-cards-grid">${cards}</div>
+      </section>
+    `;
+  }
+
+  const topic = getStoryTopicById(topicId);
+  const stories = getStoryList(topicId);
+  const progress = getStoryProgress(topicId);
+  const idx = Math.max(0, Math.min(progress.index, stories.length - 1));
+  const story = stories[idx];
+  const total = stories.length;
+  const percent = total ? Math.round(((idx + 1) / total) * 100) : 0;
+  const qa = progress.answered[story?.id] || {};
+
+  if (!story || progress.complete || progress.index >= total) {
+    return `
+      <section class="topic-section story-shell">
+        <nav class="topic-breadcrumb"><a href="#story" class="breadcrumb-back">← Back to Story Topics</a></nav>
+        <article class="level-card story-complete-card">
+          <h2>${escapeHtml(topicId)} complete</h2>
+          <p>You finished all ${total} stories in this journey.</p>
+          <div class="story-complete-actions">
+            <a href="#story" class="btn btn-outline">Choose Another Topic</a>
+            <button type="button" class="btn btn-primary" data-story-restart="${escapeHtml(topicId)}">Restart Topic</button>
+          </div>
+        </article>
+      </section>
+    `;
+  }
+
+  const question = story.question || {};
+  const questionHtml =
+    question.type === 'mcq'
+      ? `
+    <div class="mcq-grid story-mcq-grid">
+      ${(question.options || [])
+        .map((opt, oi) => {
+          const isSelected = qa.submitted && qa.selected === oi;
+          const isCorrect = qa.submitted && oi === question.answer;
+          const isWrong = qa.submitted && isSelected && oi !== question.answer;
+          const cls = isCorrect ? 'correct' : isWrong ? 'wrong' : '';
+          return `<button type="button" class="mcq-option story-mcq-option ${cls}" data-story-mcq="${oi}" ${qa.submitted ? 'disabled' : ''}>${escapeHtml(opt)}</button>`;
+        })
+        .join('')}
+    </div>
+    <div class="model-answer" ${qa.submitted ? '' : 'hidden'}>
+      <strong>${qa.correct ? tr('feedback.correct') : tr('feedback.incorrect')}.</strong>
+      <p>${escapeHtml(question.explanation || '')}</p>
+    </div>
+  `
+      : `
+    <textarea class="story-open-text" rows="5" placeholder="Type your answer...">${escapeHtml(qa.answerText || '')}</textarea>
+    <button type="button" class="btn btn-primary" data-story-check-open ${qa.submitted ? 'disabled' : ''}>Check</button>
+    <div class="story-open-result" ${qa.submitted ? '' : 'hidden'}>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:${qa.score || 0}%;background:${getScoreLevel(qa.score || 0).color}"></div></div>
+      <p>${tr('score')}: ${qa.score || 0}%</p>
+      <p>${tr('feedback.model')}: ${escapeHtml(question.model_answer || '')}</p>
+    </div>
+  `;
+
+  return `
+    <section class="topic-section story-shell" data-story-topic="${escapeHtml(topicId)}" data-story-index="${idx}">
+      <nav class="topic-breadcrumb"><a href="#story" class="breadcrumb-back">← Back to Story Topics</a></nav>
+      <article class="level-card story-unit-card">
+        <div class="story-progress-head">
+          <p class="story-counter">Story ${idx + 1} of ${total}</p>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:${percent}%;background:${escapeHtml(topic?.color || '#4F8EF7')}"></div></div>
+        </div>
+        <h2 class="story-title">${escapeHtml(story.title || '')}</h2>
+        <div class="story-hook-box">${escapeHtml(story.hook || '')}</div>
+        <div class="story-concept">${escapeHtml(story.concept || '').replace(/\n/g, '<br />')}</div>
+        ${story.formula ? `<div class="story-formula-box"><pre>${escapeHtml(story.formula)}</pre></div>` : ''}
+        ${story.example ? `<div class="story-example-box">${escapeHtml(story.example)}</div>` : ''}
+        <div class="story-question-box">
+          <p><strong>${escapeHtml(question.text || '')}</strong></p>
+          ${questionHtml}
+        </div>
+        <div class="story-next-row">
+          <button type="button" class="btn btn-primary" data-story-next ${qa.submitted ? '' : 'disabled'}>
+            ${idx === total - 1 ? 'Topic Complete' : 'Next Story'}
+          </button>
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderStoryRoute(topicId) {
+  const route = document.getElementById('story-route');
+  if (!route) return;
+  storyState.topicId = topicId || null;
+  route.innerHTML = storyRouteHtml(topicId || null);
+}
+
+function initStoryDelegation() {
+  const mount = document.getElementById('topics-mount');
+  if (!mount) return;
+  mount.addEventListener('click', (e) => {
+    const restart = e.target.closest('[data-story-restart]');
+    if (restart) {
+      const topicId = restart.getAttribute('data-story-restart');
+      const p = getStoryProgress(topicId);
+      p.index = 0;
+      p.complete = false;
+      p.answered = {};
+      renderStoryRoute(topicId);
+      return;
+    }
+
+    const checkOpen = e.target.closest('[data-story-check-open]');
+    if (checkOpen) {
+      const shell = e.target.closest('[data-story-topic]');
+      if (!shell) return;
+      const topicId = shell.getAttribute('data-story-topic');
+      const index = Number(shell.getAttribute('data-story-index'));
+      const story = getStoryList(topicId)[index];
+      if (!story || !story.question || story.question.type !== 'open') return;
+      const textarea = shell.querySelector('.story-open-text');
+      const answerText = String(textarea?.value || '').trim();
+      if (answerText.split(/\s+/).filter(Boolean).length < 3) return;
+      const { score } = checkKeywords(answerText, story.question.keywords || []);
+      const p = getStoryProgress(topicId);
+      p.answered[story.id] = { submitted: true, score, answerText };
+      renderStoryRoute(topicId);
+      return;
+    }
+
+    const mcq = e.target.closest('[data-story-mcq]');
+    if (mcq) {
+      const shell = e.target.closest('[data-story-topic]');
+      if (!shell) return;
+      const topicId = shell.getAttribute('data-story-topic');
+      const index = Number(shell.getAttribute('data-story-index'));
+      const story = getStoryList(topicId)[index];
+      if (!story || !story.question || story.question.type !== 'mcq') return;
+      const selected = Number(mcq.getAttribute('data-story-mcq'));
+      const correct = selected === story.question.answer;
+      const p = getStoryProgress(topicId);
+      if (p.answered[story.id]?.submitted) return;
+      p.answered[story.id] = { submitted: true, selected, correct };
+      renderStoryRoute(topicId);
+      return;
+    }
+
+    const next = e.target.closest('[data-story-next]');
+    if (next) {
+      const shell = e.target.closest('[data-story-topic]');
+      if (!shell) return;
+      const topicId = shell.getAttribute('data-story-topic');
+      const index = Number(shell.getAttribute('data-story-index'));
+      const stories = getStoryList(topicId);
+      const p = getStoryProgress(topicId);
+      if (index >= stories.length - 1) {
+        p.complete = true;
+      } else {
+        p.index = index + 1;
+      }
+      renderStoryRoute(topicId);
+    }
+  });
 }
 
 function initTopicInteractions(id) {
@@ -2468,6 +2701,7 @@ document.addEventListener('DOMContentLoaded', () => {
   mountTopics();
   renderTopicCards();
   initL2AnswerDelegation();
+  initStoryDelegation();
   initSpaRouter();
   initCountdown();
   initGradeCalc();

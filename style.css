@@ -1495,3 +1495,79 @@ button[class*="check"]:hover {
   transform: translateY(-1px) !important;
   box-shadow: 0 8px 24px rgba(79, 142, 247, 0.35) !important;
 }
+
+.story-shell {
+  max-width: 960px;
+}
+
+.story-title {
+  font-family: var(--font-display);
+  margin: 0.25rem 0 1rem;
+}
+
+.story-progress-head {
+  margin-bottom: 0.75rem;
+}
+
+.story-counter {
+  margin: 0 0 0.4rem;
+  color: var(--text-secondary);
+}
+
+.story-hook-box {
+  background: rgba(79, 142, 247, 0.09);
+  border: 1px solid rgba(79, 142, 247, 0.22);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 0.8rem 0;
+}
+
+.story-concept {
+  margin: 1rem 0;
+  color: var(--text-primary);
+}
+
+.story-formula-box {
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  border-left: 4px solid #A78BFA;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin: 0.8rem 0;
+}
+
+.story-formula-box pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: ui-monospace, monospace;
+  color: #ddd6fe;
+}
+
+.story-example-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin: 0.8rem 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.story-question-box {
+  margin-top: 1rem;
+}
+
+.story-open-text {
+  margin-top: 0.5rem;
+}
+
+.story-next-row {
+  margin-top: 1rem;
+}
+
+.story-complete-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
