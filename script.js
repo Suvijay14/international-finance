@@ -1976,7 +1976,9 @@ const storyState = {
 };
 
 function getStoryDataset() {
-  return typeof window !== 'undefined' && window.STORY_MODE ? window.STORY_MODE : null;
+  if (typeof STORY_MODE !== 'undefined' && STORY_MODE) return STORY_MODE;
+  if (typeof window !== 'undefined' && window.STORY_MODE) return window.STORY_MODE;
+  return null;
 }
 
 function getStoryTopicById(topicId) {
@@ -1999,18 +2001,7 @@ function getStoryProgress(topicId) {
 }
 
 function storyRouteHtml(topicId) {
-  const data = getStoryDataset();
-  if (!data) {
-    return `
-      <section class="topic-section story-shell">
-        <nav class="topic-breadcrumb"><a href="#home" class="breadcrumb-back">← Back to Home</a></nav>
-        <div class="topic-banner">
-          <h2>Story Mode</h2>
-          <p class="topic-tagline">Missing \`STORY_MODE.js\`. Add the file and reload.</p>
-        </div>
-      </section>
-    `;
-  }
+  const data = getStoryDataset() || { meta: {}, topics: [] };
 
   if (!topicId) {
     const cards = data.topics
