@@ -798,7 +798,7 @@ h3 {
 }
 
 .worked-step:nth-child(even) {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .final-answer {
@@ -1376,3 +1376,122 @@ textarea.l4-textarea {
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 100px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
+
+/* Global dark-mode contrast overrides for all form surfaces */
+textarea {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+  padding: 1rem !important;
+  color: #F1F5F9 !important;
+  font-family: inherit !important;
+  font-size: 0.9rem !important;
+  font-weight: 300 !important;
+  line-height: 1.7 !important;
+  resize: vertical !important;
+  width: 100% !important;
+  outline: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+textarea:focus {
+  border-color: rgba(79, 142, 247, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+textarea::placeholder {
+  color: rgba(148, 163, 184, 0.5) !important;
+  font-style: italic !important;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+select {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  padding: 0.7rem 1rem !important;
+  color: #F1F5F9 !important;
+  font-family: inherit !important;
+  font-size: 0.88rem !important;
+  outline: none !important;
+  width: 100% !important;
+  transition: border-color 0.2s ease !important;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+select:focus {
+  border-color: rgba(79, 142, 247, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1) !important;
+}
+
+input::placeholder {
+  color: rgba(148, 163, 184, 0.5) !important;
+}
+
+select option {
+  background: #141B2D !important;
+  color: #F1F5F9 !important;
+}
+
+.level5-scenario,
+.boss-scenario,
+.case-scenario,
+[class*="scenario"],
+[class*="memo"] {
+  background: rgba(79, 142, 247, 0.06) !important;
+  border: 1px solid rgba(79, 142, 247, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 1.25rem 1.5rem !important;
+  color: #94A3B8 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.7 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.part-label,
+[class*="part-label"],
+h4, h5 {
+  color: #F1F5F9 !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.question-text,
+.level-question,
+.open-question p,
+[class*="question"] p,
+[class*="level"] p {
+  color: #CBD5E1 !important;
+  font-size: 0.92rem !important;
+  line-height: 1.7 !important;
+}
+
+button[class*="submit"],
+button[class*="check"],
+.btn-submit,
+.submit-btn {
+  background: #4F8EF7 !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 0.7rem 1.5rem !important;
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+button[class*="submit"]:hover,
+button[class*="check"]:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 24px rgba(79, 142, 247, 0.35) !important;
+}
