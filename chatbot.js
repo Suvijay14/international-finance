@@ -1,4 +1,5 @@
 const GROQ_API_KEY = "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";
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 const SYSTEM_PROMPT = `You are a strict but clear International 
 Finance tutor for SKEMA Business School students preparing for 
@@ -198,7 +199,7 @@ let conversationHistory = [
             "Authorization": "Bearer " + GROQ_API_KEY
           },
           body: JSON.stringify({
-            model: "llama3-8b-8192",
+            model: GROQ_MODEL,
             messages: conversationHistory,
             max_tokens: 400,
             temperature: 0.3
