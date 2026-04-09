@@ -8,7 +8,6 @@ const LANG = {
   en: {
     'nav.grades': 'Grades',
     'nav.doubt': 'Doubt Board',
-    'nav.notes': 'Notes',
     'nav.back': '← Back to Topics',
     'hero.eyebrow': 'SKEMA Business School',
     'hero.title': 'Pass International Finance',
@@ -61,10 +60,6 @@ const LANG = {
     'doubt.post': 'Post',
     'doubt.anonymous': 'Anonymous',
     'doubt.general': 'General',
-    'notes.title': 'Class Sticky Notes',
-    'notes.subtitle': 'Pin something important. Everyone sees it.',
-    'notes.placeholder': 'Write something important...',
-    'notes.pin': 'Pin Note',
     'formula.title': 'Formula Sheet',
     'mastered': 'Topic Mastered',
     'score': 'Score',
@@ -72,7 +67,6 @@ const LANG = {
   fr: {
     'nav.grades': 'Notes',
     'nav.doubt': 'Questions',
-    'nav.notes': 'Mémos',
     'nav.back': '← Retour aux sujets',
     'hero.eyebrow': 'SKEMA Business School',
     'hero.title': 'Réussir Finance Internationale',
@@ -125,10 +119,6 @@ const LANG = {
     'doubt.post': 'Publier',
     'doubt.anonymous': 'Anonyme',
     'doubt.general': 'Général',
-    'notes.title': 'Mémos de la classe',
-    'notes.subtitle': "Épinglez quelque chose d'important. Tout le monde le voit.",
-    'notes.placeholder': "Écrivez quelque chose d'important...",
-    'notes.pin': 'Épingler',
     'formula.title': 'Formules',
     'mastered': 'Sujet maîtrisé',
     'score': 'Score',
@@ -1692,7 +1682,7 @@ function ensureTopicRendered(id) {
 function parseHash(hash) {
   const raw = (hash || '').replace(/^#/, '').trim() || 'home';
   if (raw === 'home' || raw === '') return { type: 'home', scrollTo: null };
-  const homeAnchors = ['grade-calc', 'doubt-board', 'sticky-notes', 'hero', 'topic-picker'];
+  const homeAnchors = ['grade-calc', 'doubt-board', 'hero', 'topic-picker'];
   if (homeAnchors.includes(raw)) return { type: 'home', scrollTo: raw };
   const topicPrefix = raw.match(/^(IF\d+)/);
   if (topicPrefix) {

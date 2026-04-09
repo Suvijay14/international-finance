@@ -975,92 +975,24 @@ textarea.l4-textarea {
   margin-bottom: 0.35rem;
 }
 
-.sticky-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: flex-end;
-  margin-bottom: var(--gap);
-}
-
-.sticky-form input[type='text'] {
-  flex: 1;
-  min-width: 200px;
-  min-height: 44px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.color-picker {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.sticky-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
-.sticky-note {
-  padding: 1rem;
-  border-radius: 4px;
-  box-shadow: var(--shadow-lg);
-  min-height: 100px;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.sticky-note:hover {
-  transform: scale(1.05) rotate(0deg) !important;
-  z-index: 2;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
-}
-
-.sticky-note.yellow {
-  background: #FEF08A;
-}
-.sticky-note.green {
-  background: #BBF7D0;
-}
-.sticky-note.pink {
-  background: #FBCFE8;
-}
-.sticky-note.blue {
-  background: #BAE6FD;
-}
-
-.sticky-time {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  font-size: 0.7rem;
-  color: var(--text-sec);
-}
-
-.sticky-note.pop-in {
-  animation: stickyPop 0.2s ease;
-}
-
-@keyframes stickyPop {
-  from {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .site-footer {
   text-align: center;
   padding: calc(var(--gap) * 2) 1rem;
   border-top: 1px solid var(--glass-border);
   color: var(--text-secondary);
+}
+
+.footer-built-by,
+.footer-tagline {
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-tertiary);
+}
+
+.footer-tagline {
+  margin-top: 0.2rem;
 }
 
 .footer-nav {

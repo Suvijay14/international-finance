@@ -28,7 +28,6 @@
       <div class="nav-actions nav-right">
         <a href="#grade-calc" class="nav-link nav-btn nav-scroll-home" data-scroll-target="grade-calc" data-i18n="nav.grades">Grades</a>
         <a href="#doubt-board" class="nav-link nav-btn nav-scroll-home" data-scroll-target="doubt-board" data-i18n="nav.doubt">Doubt Board</a>
-        <a href="#sticky-notes" class="nav-link nav-btn nav-scroll-home" data-scroll-target="sticky-notes" data-i18n="nav.notes">Notes</a>
         <div class="lang-toggle" aria-label="Language toggle">
           <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
           <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
@@ -132,21 +131,6 @@
           </div>
         </section>
 
-        <section class="section sticky-section" id="sticky-notes">
-          <h2 data-i18n="notes.title">Class Sticky Notes</h2>
-          <p class="section-sub" data-i18n="notes.subtitle">Pin something important. Everyone can see it.</p>
-          <form class="sticky-form" id="sticky-form">
-            <div class="color-picker">
-              <label><input type="radio" name="color" value="yellow" checked /> Yellow</label>
-              <label><input type="radio" name="color" value="green" /> Green</label>
-              <label><input type="radio" name="color" value="pink" /> Pink</label>
-              <label><input type="radio" name="color" value="blue" /> Blue</label>
-            </div>
-            <input type="text" name="content" placeholder="Write something important..." maxlength="500" required data-i18n-placeholder="notes.placeholder" />
-            <button type="submit" class="btn btn-primary" data-i18n="notes.pin">Pin Note</button>
-          </form>
-          <div class="sticky-grid" id="sticky-notes-container"></div>
-        </section>
       </div>
 
       <div id="topics-mount" class="topics-spa-mount" aria-live="polite"></div>
@@ -154,7 +138,8 @@
   </main>
 
   <footer class="site-footer">
-    <p>Built for SKEMA International Finance — Exam: April 16, 2026</p>
+    <p class="footer-built-by">Built by Suvijay Mahendru</p>
+    <p class="footer-tagline">just a fucking narcissist, that's why the name is here</p>
     <nav class="footer-nav" aria-label="Topic links">
       <a href="#IF1" class="nav-topic-link footer-topic-link" data-topic="IF1">IF1</a>
       <a href="#IF2" class="nav-topic-link footer-topic-link" data-topic="IF2">IF2</a>
