@@ -1891,7 +1891,8 @@ function renderView(hash, options) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } else if (parsed.type === 'story') {
-      renderStoryRoute(parsed.topicId);
+      if (parsed.topicId) renderStoryTopic(parsed.topicId);
+      else renderStoryMode();
       const se = document.getElementById('story-route');
       if (se) se.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1970,220 +1971,387 @@ function renderTopicCards() {
   }).join('');
 }
 
-const storyState = {
-  topicId: null,
-  progress: {},
-};
+function renderStoryMode() {
+  const container =
+    document.getElementById('story-view') ||
+    document.getElementById('story-route') ||
+    document.querySelector('[data-view="story"]') ||
+    document.querySelector('.story-container');
 
-function getStoryDataset() {
-  if (typeof STORY_MODE !== 'undefined' && STORY_MODE) return STORY_MODE;
-  if (typeof window !== 'undefined' && window.STORY_MODE) return window.STORY_MODE;
-  return null;
-}
+  if (!container) return;
 
-function getStoryTopicById(topicId) {
-  const data = getStoryDataset();
-  if (!data || !Array.isArray(data.topics)) return null;
-  return data.topics.find((t) => t.id === topicId) || null;
-}
-
-function getStoryList(topicId) {
-  const data = getStoryDataset();
-  if (!data || !topicId || !Array.isArray(data[topicId])) return [];
-  return data[topicId];
-}
-
-function getStoryProgress(topicId) {
-  if (!storyState.progress[topicId]) {
-    storyState.progress[topicId] = { index: 0, complete: false, answered: {} };
-  }
-  return storyState.progress[topicId];
-}
-
-function storyRouteHtml(topicId) {
-  const data = getStoryDataset() || { meta: {}, topics: [] };
-
-  if (!topicId) {
-    const cards = data.topics
-      .map(
-        (t) => `
-      <article class="topic-card story-topic-card" style="border-left:4px solid ${escapeHtml(t.color || '#4F8EF7')}">
-        <span class="topic-card-badge">${escapeHtml(t.id)}</span>
-        <span class="priority-pill ${escapeHtml(t.priority || 'medium')}">${escapeHtml((t.priority || 'medium').toUpperCase())} PRIORITY</span>
-        <h3 class="topic-card-title">${escapeHtml(currentLang === 'fr' ? t.title_fr : t.title_en)}</h3>
-        <p class="topic-card-tagline">${escapeHtml(String(t.stories || getStoryList(t.id).length))} stories</p>
-        <a href="#story-${escapeHtml(t.id)}" class="btn btn-primary topic-card-cta">Begin</a>
-      </article>`
-      )
-      .join('');
-    return `
-      <section class="topic-section story-shell">
-        <nav class="topic-breadcrumb"><a href="#home" class="breadcrumb-back">← Back to Home</a></nav>
-        <div class="topic-banner">
-          <span class="topic-badge">Story Mode</span>
-          <h2>${escapeHtml(currentLang === 'fr' ? data.meta.title_fr : data.meta.title_en)}</h2>
-          <p class="topic-tagline">${escapeHtml(currentLang === 'fr' ? data.meta.instruction_fr : data.meta.instruction_en)}</p>
-        </div>
-        <div class="topic-cards-grid">${cards}</div>
-      </section>
-    `;
+  if (typeof STORY_MODE === 'undefined') {
+    container.innerHTML = '<p style="color:red">STORY_MODE not loaded</p>';
+    return;
   }
 
-  const topic = getStoryTopicById(topicId);
-  const stories = getStoryList(topicId);
-  const progress = getStoryProgress(topicId);
-  const idx = Math.max(0, Math.min(progress.index, stories.length - 1));
-  const story = stories[idx];
-  const total = stories.length;
-  const percent = total ? Math.round(((idx + 1) / total) * 100) : 0;
-  const qa = progress.answered[story?.id] || {};
+  const topics = STORY_MODE.topics;
 
-  if (!story || progress.complete || progress.index >= total) {
-    return `
-      <section class="topic-section story-shell">
-        <nav class="topic-breadcrumb"><a href="#story" class="breadcrumb-back">← Back to Story Topics</a></nav>
-        <article class="level-card story-complete-card">
-          <h2>${escapeHtml(topicId)} complete</h2>
-          <p>You finished all ${total} stories in this journey.</p>
-          <div class="story-complete-actions">
-            <a href="#story" class="btn btn-outline">Choose Another Topic</a>
-            <button type="button" class="btn btn-primary" data-story-restart="${escapeHtml(topicId)}">Restart Topic</button>
+  container.innerHTML = `
+    <div style="max-width:1100px;margin:0 auto;padding:2rem;">
+      <h1 style="font-family:var(--font-display);font-size:2.5rem;
+                 color:var(--text-primary);margin-bottom:0.5rem;">
+        Story Mode
+      </h1>
+      <p style="color:var(--text-secondary);margin-bottom:3rem;">
+        Learn through real stories. Pick a topic to begin.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);
+                  gap:1rem;">
+        ${topics
+          .map(
+            (topic) => `
+          <div onclick="navigateToStoryTopic('${topic.id}')"
+               style="background:var(--glass-bg);
+                      border:1px solid var(--glass-border);
+                      border-left:4px solid ${topic.color};
+                      border-radius:16px;padding:1.75rem;
+                      cursor:pointer;transition:all 0.3s ease;"
+               onmouseover="this.style.transform='translateY(-4px)';
+                            this.style.boxShadow='0 20px 40px rgba(0,0,0,0.4)'"
+               onmouseout="this.style.transform='translateY(0)';
+                           this.style.boxShadow='none'">
+            <div style="font-size:0.65rem;font-weight:600;
+                        letter-spacing:0.15em;text-transform:uppercase;
+                        color:${topic.color};margin-bottom:0.75rem;">
+              ${topic.id}
+              <span style="margin-left:0.5rem;padding:0.1rem 0.5rem;
+                           border-radius:100px;font-size:0.6rem;
+                           background:${
+                             topic.priority === 'high' ? 'rgba(248,113,113,0.15)' : 'rgba(251,191,36,0.15)'
+                           };
+                           color:${topic.priority === 'high' ? '#F87171' : '#FBBF24'}">
+                ${topic.priority === 'high' ? 'HIGH PRIORITY' : 'MEDIUM'}
+              </span>
+            </div>
+            <div style="font-family:var(--font-display);font-size:1.05rem;
+                        color:var(--text-primary);margin-bottom:0.75rem;
+                        line-height:1.3;">
+              ${topic.title_en}
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);
+                        margin-bottom:1.25rem;">
+              ${topic.stories} stories
+            </div>
+            <div style="font-size:0.72rem;font-weight:600;
+                        letter-spacing:0.08em;text-transform:uppercase;
+                        color:${topic.color};">
+              Begin →
+            </div>
           </div>
-        </article>
-      </section>
+        `
+          )
+          .join('')}
+      </div>
+    </div>
+  `;
+}
+
+function navigateToStoryTopic(topicId) {
+  window.location.hash = 'story-' + topicId;
+  renderStoryTopic(topicId);
+}
+
+function renderStoryTopic(topicId) {
+  const stories = STORY_MODE[topicId];
+  const topic = STORY_MODE.topics.find((t) => t.id === topicId);
+  if (!stories || !topic) return;
+
+  const container =
+    document.getElementById('story-view') ||
+    document.getElementById('story-route') ||
+    document.querySelector('[data-view="story"]') ||
+    document.querySelector('.story-container');
+  if (!container) return;
+
+  let currentStory = 0;
+
+  function showStory(index) {
+    const s = stories[index];
+    container.innerHTML = `
+      <div style="max-width:760px;margin:0 auto;padding:2rem;">
+        
+        <div style="display:flex;align-items:center;
+                    gap:1rem;margin-bottom:2rem;">
+          <button onclick="renderStoryMode()"
+                  style="font-size:0.72rem;font-weight:500;
+                         letter-spacing:0.06em;text-transform:uppercase;
+                         color:var(--text-secondary);
+                         padding:0.4rem 0.8rem;
+                         border:1px solid var(--glass-border);
+                         border-radius:6px;background:var(--glass-bg);
+                         cursor:pointer;">
+            ← Back
+          </button>
+          <div style="flex:1;height:4px;background:var(--bg-tertiary);
+                      border-radius:100px;overflow:hidden;">
+            <div style="height:100%;background:${topic.color};
+                        width:${((index + 1) / stories.length) * 100}%;
+                        transition:width 0.5s ease;border-radius:100px;">
+            </div>
+          </div>
+          <span style="font-size:0.72rem;color:var(--text-tertiary);
+                       white-space:nowrap;">
+            ${index + 1} / ${stories.length}
+          </span>
+        </div>
+
+        <h2 style="font-family:var(--font-display);font-size:2rem;
+                   color:var(--text-primary);margin-bottom:2rem;
+                   line-height:1.2;">
+          ${s.title}
+        </h2>
+
+        <div style="background:rgba(79,142,247,0.06);
+                    border-left:4px solid #4F8EF7;
+                    border-radius:0 12px 12px 0;
+                    padding:1.25rem 1.5rem;margin-bottom:2rem;">
+          <div style="font-size:0.6rem;font-weight:600;
+                      letter-spacing:0.15em;text-transform:uppercase;
+                      color:#4F8EF7;margin-bottom:0.5rem;">
+            The Story
+          </div>
+          <p style="color:var(--text-secondary);line-height:1.8;
+                    font-size:0.95rem;margin:0;">
+            ${s.hook}
+          </p>
+        </div>
+
+        <div style="color:var(--text-secondary);line-height:1.9;
+                    font-size:0.92rem;margin-bottom:2rem;
+                    white-space:pre-line;">
+          ${s.concept}
+        </div>
+
+        ${
+          s.formula
+            ? `
+          <div style="background:rgba(167,139,250,0.08);
+                      border:1px solid rgba(167,139,250,0.2);
+                      border-radius:12px;padding:1.25rem 1.5rem;
+                      margin-bottom:2rem;">
+            <div style="font-size:0.6rem;font-weight:600;
+                        letter-spacing:0.15em;text-transform:uppercase;
+                        color:#A78BFA;margin-bottom:0.75rem;">
+              Formula
+            </div>
+            <pre style="font-family:ui-monospace, monospace;font-size:0.85rem;
+                        color:#A78BFA;margin:0;white-space:pre-wrap;">
+${s.formula}</pre>
+          </div>
+        `
+            : ''
+        }
+
+        ${
+          s.example
+            ? `
+          <div style="background:rgba(255,255,255,0.03);
+                      border:1px solid var(--glass-border);
+                      border-radius:12px;padding:1.25rem 1.5rem;
+                      margin-bottom:2rem;">
+            <div style="font-size:0.6rem;font-weight:600;
+                        letter-spacing:0.15em;text-transform:uppercase;
+                        color:var(--text-tertiary);margin-bottom:0.75rem;">
+              Example
+            </div>
+            <p style="color:var(--text-secondary);font-size:0.88rem;
+                      line-height:1.7;margin:0;white-space:pre-line;">
+              ${s.example}
+            </p>
+          </div>
+        `
+            : ''
+        }
+
+        ${
+          s.question.type === 'mcq'
+            ? `
+          <div style="margin-bottom:2rem;">
+            <div style="font-size:0.6rem;font-weight:600;
+                        letter-spacing:0.15em;text-transform:uppercase;
+                        color:var(--text-tertiary);margin-bottom:1rem;">
+              Quick Check
+            </div>
+            <p style="color:var(--text-primary);font-size:1rem;
+                      font-weight:500;margin-bottom:1rem;line-height:1.5;">
+              ${s.question.text}
+            </p>
+            ${s.question.options
+              .map(
+                (opt, i) => `
+              <div id="mcq-opt-${i}"
+                   onclick="checkMCQ(${i}, ${s.question.answer}, '${s.question.explanation.replace(/'/g, '&#39;')}')"
+                   style="padding:0.9rem 1.25rem;border-radius:10px;
+                          border:1px solid var(--glass-border);
+                          background:var(--glass-bg);cursor:pointer;
+                          margin-bottom:0.5rem;font-size:0.9rem;
+                          color:var(--text-secondary);
+                          transition:all 0.2s ease;">
+                ${opt}
+              </div>
+            `
+              )
+              .join('')}
+            <div id="mcq-explanation" style="display:none;
+                 margin-top:1rem;padding:1rem;
+                 border-radius:10px;font-size:0.88rem;line-height:1.6;">
+            </div>
+          </div>
+        `
+            : `
+          <div style="margin-bottom:2rem;">
+            <div style="font-size:0.6rem;font-weight:600;
+                        letter-spacing:0.15em;text-transform:uppercase;
+                        color:var(--text-tertiary);margin-bottom:1rem;">
+              Your Turn
+            </div>
+            <p style="color:var(--text-primary);font-size:1rem;
+                      font-weight:500;margin-bottom:1rem;line-height:1.5;">
+              ${s.question.text}
+            </p>
+            <textarea id="story-answer"
+                      placeholder="Write your answer here..."
+                      style="width:100%;min-height:120px;
+                             background:rgba(255,255,255,0.06);
+                             border:1px solid rgba(255,255,255,0.15);
+                             border-radius:10px;padding:1rem;
+                             color:var(--text-primary);font-size:0.9rem;
+                             line-height:1.7;resize:vertical;
+                             font-family:inherit;outline:none;
+                             box-sizing:border-box;"></textarea>
+            <button onclick='checkOpenAnswer(
+                      document.getElementById("story-answer").value,
+                      ${JSON.stringify(s.question.keywords)},
+                      ${JSON.stringify(s.question.model_answer)}
+                    )'
+                    style="margin-top:0.75rem;padding:0.7rem 1.5rem;
+                           background:#4F8EF7;color:white;border:none;
+                           border-radius:8px;font-size:0.75rem;
+                           font-weight:600;letter-spacing:0.1em;
+                           text-transform:uppercase;cursor:pointer;">
+              Check My Answer
+            </button>
+            <div id="open-feedback" style="margin-top:1rem;display:none;">
+            </div>
+          </div>
+        `
+        }
+
+        <button id="next-story-btn"
+                onclick="${index < stories.length - 1 ? `showStoryIndex(${index + 1})` : `showStoryComplete('${topicId}')`}"
+                style="display:none;width:100%;padding:1rem;
+                       background:#4F8EF7;color:white;border:none;
+                       border-radius:10px;font-size:0.8rem;
+                       font-weight:600;letter-spacing:0.1em;
+                       text-transform:uppercase;cursor:pointer;
+                       transition:all 0.2s ease;">
+          ${index < stories.length - 1 ? 'Next Story →' : 'Complete Topic ✓'}
+        </button>
+
+      </div>
     `;
+
+    window.showStoryIndex = function (i) {
+      currentStory = i;
+      showStory(i);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
   }
 
-  const question = story.question || {};
-  const questionHtml =
-    question.type === 'mcq'
-      ? `
-    <div class="mcq-grid story-mcq-grid">
-      ${(question.options || [])
-        .map((opt, oi) => {
-          const isSelected = qa.submitted && qa.selected === oi;
-          const isCorrect = qa.submitted && oi === question.answer;
-          const isWrong = qa.submitted && isSelected && oi !== question.answer;
-          const cls = isCorrect ? 'correct' : isWrong ? 'wrong' : '';
-          return `<button type="button" class="mcq-option story-mcq-option ${cls}" data-story-mcq="${oi}" ${qa.submitted ? 'disabled' : ''}>${escapeHtml(opt)}</button>`;
-        })
-        .join('')}
-    </div>
-    <div class="model-answer" ${qa.submitted ? '' : 'hidden'}>
-      <strong>${qa.correct ? tr('feedback.correct') : tr('feedback.incorrect')}.</strong>
-      <p>${escapeHtml(question.explanation || '')}</p>
-    </div>
-  `
-      : `
-    <textarea class="story-open-text" rows="5" placeholder="Type your answer...">${escapeHtml(qa.answerText || '')}</textarea>
-    <button type="button" class="btn btn-primary" data-story-check-open ${qa.submitted ? 'disabled' : ''}>Check</button>
-    <div class="story-open-result" ${qa.submitted ? '' : 'hidden'}>
-      <div class="score-bar-wrap"><div class="score-bar" style="width:${qa.score || 0}%;background:${getScoreLevel(qa.score || 0).color}"></div></div>
-      <p>${tr('score')}: ${qa.score || 0}%</p>
-      <p>${tr('feedback.model')}: ${escapeHtml(question.model_answer || '')}</p>
-    </div>
-  `;
-
-  return `
-    <section class="topic-section story-shell" data-story-topic="${escapeHtml(topicId)}" data-story-index="${idx}">
-      <nav class="topic-breadcrumb"><a href="#story" class="breadcrumb-back">← Back to Story Topics</a></nav>
-      <article class="level-card story-unit-card">
-        <div class="story-progress-head">
-          <p class="story-counter">Story ${idx + 1} of ${total}</p>
-          <div class="score-bar-wrap"><div class="score-bar" style="width:${percent}%;background:${escapeHtml(topic?.color || '#4F8EF7')}"></div></div>
-        </div>
-        <h2 class="story-title">${escapeHtml(story.title || '')}</h2>
-        <div class="story-hook-box">${escapeHtml(story.hook || '')}</div>
-        <div class="story-concept">${escapeHtml(story.concept || '').replace(/\n/g, '<br />')}</div>
-        ${story.formula ? `<div class="story-formula-box"><pre>${escapeHtml(story.formula)}</pre></div>` : ''}
-        ${story.example ? `<div class="story-example-box">${escapeHtml(story.example)}</div>` : ''}
-        <div class="story-question-box">
-          <p><strong>${escapeHtml(question.text || '')}</strong></p>
-          ${questionHtml}
-        </div>
-        <div class="story-next-row">
-          <button type="button" class="btn btn-primary" data-story-next ${qa.submitted ? '' : 'disabled'}>
-            ${idx === total - 1 ? 'Topic Complete' : 'Next Story'}
-          </button>
-        </div>
-      </article>
-    </section>
-  `;
-}
-
-function renderStoryRoute(topicId) {
-  const route = document.getElementById('story-route');
-  if (!route) return;
-  storyState.topicId = topicId || null;
-  route.innerHTML = storyRouteHtml(topicId || null);
-}
-
-function initStoryDelegation() {
-  const mount = document.getElementById('topics-mount');
-  if (!mount) return;
-  mount.addEventListener('click', (e) => {
-    const restart = e.target.closest('[data-story-restart]');
-    if (restart) {
-      const topicId = restart.getAttribute('data-story-restart');
-      const p = getStoryProgress(topicId);
-      p.index = 0;
-      p.complete = false;
-      p.answered = {};
-      renderStoryRoute(topicId);
-      return;
-    }
-
-    const checkOpen = e.target.closest('[data-story-check-open]');
-    if (checkOpen) {
-      const shell = e.target.closest('[data-story-topic]');
-      if (!shell) return;
-      const topicId = shell.getAttribute('data-story-topic');
-      const index = Number(shell.getAttribute('data-story-index'));
-      const story = getStoryList(topicId)[index];
-      if (!story || !story.question || story.question.type !== 'open') return;
-      const textarea = shell.querySelector('.story-open-text');
-      const answerText = String(textarea?.value || '').trim();
-      if (answerText.split(/\s+/).filter(Boolean).length < 3) return;
-      const { score } = checkKeywords(answerText, story.question.keywords || []);
-      const p = getStoryProgress(topicId);
-      p.answered[story.id] = { submitted: true, score, answerText };
-      renderStoryRoute(topicId);
-      return;
-    }
-
-    const mcq = e.target.closest('[data-story-mcq]');
-    if (mcq) {
-      const shell = e.target.closest('[data-story-topic]');
-      if (!shell) return;
-      const topicId = shell.getAttribute('data-story-topic');
-      const index = Number(shell.getAttribute('data-story-index'));
-      const story = getStoryList(topicId)[index];
-      if (!story || !story.question || story.question.type !== 'mcq') return;
-      const selected = Number(mcq.getAttribute('data-story-mcq'));
-      const correct = selected === story.question.answer;
-      const p = getStoryProgress(topicId);
-      if (p.answered[story.id]?.submitted) return;
-      p.answered[story.id] = { submitted: true, selected, correct };
-      renderStoryRoute(topicId);
-      return;
-    }
-
-    const next = e.target.closest('[data-story-next]');
-    if (next) {
-      const shell = e.target.closest('[data-story-topic]');
-      if (!shell) return;
-      const topicId = shell.getAttribute('data-story-topic');
-      const index = Number(shell.getAttribute('data-story-index'));
-      const stories = getStoryList(topicId);
-      const p = getStoryProgress(topicId);
-      if (index >= stories.length - 1) {
-        p.complete = true;
-      } else {
-        p.index = index + 1;
+  window.checkMCQ = function (selected, correct, explanation) {
+    const opts = document.querySelectorAll('[id^="mcq-opt-"]');
+    opts.forEach((o, i) => {
+      o.onclick = null;
+      if (i === correct) {
+        o.style.borderColor = '#34D399';
+        o.style.background = 'rgba(52,211,153,0.1)';
+        o.style.color = '#34D399';
+      } else if (i === selected && selected !== correct) {
+        o.style.borderColor = '#F87171';
+        o.style.background = 'rgba(248,113,113,0.1)';
+        o.style.color = '#F87171';
       }
-      renderStoryRoute(topicId);
-    }
-  });
+    });
+    const exp = document.getElementById('mcq-explanation');
+    exp.style.display = 'block';
+    exp.style.background = selected === correct ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)';
+    exp.style.border =
+      selected === correct ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(248,113,113,0.2)';
+    exp.style.color = 'var(--text-secondary)';
+    exp.innerHTML = explanation;
+    document.getElementById('next-story-btn').style.display = 'block';
+  };
+
+  window.checkOpenAnswer = function (answer, keywords, modelAnswer) {
+    const lower = String(answer || '').toLowerCase();
+    const matched = keywords.filter((k) => lower.includes(String(k).toLowerCase()));
+    const score = Math.round((matched.length / keywords.length) * 100);
+    const fb = document.getElementById('open-feedback');
+    fb.style.display = 'block';
+    const color = score >= 70 ? '#34D399' : score >= 40 ? '#FBBF24' : '#F87171';
+    fb.innerHTML = `
+      <div style="margin-bottom:0.75rem;">
+        <div style="height:4px;background:var(--bg-tertiary);
+                    border-radius:100px;overflow:hidden;margin-bottom:0.5rem;">
+          <div style="height:100%;background:${color};width:${score}%;
+                      transition:width 0.6s ease;border-radius:100px;"></div>
+        </div>
+        <span style="font-size:0.8rem;color:${color};font-weight:600;">
+          ${score}% — ${score >= 70 ? 'Strong answer' : score >= 40 ? 'Good attempt' : 'Keep reviewing'}
+        </span>
+      </div>
+      <div style="background:rgba(79,142,247,0.06);
+                  border:1px solid rgba(79,142,247,0.15);
+                  border-radius:10px;padding:1rem;margin-top:0.75rem;">
+        <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.12em;
+                    text-transform:uppercase;color:#4F8EF7;margin-bottom:0.5rem;">
+          Model Answer
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.88rem;
+                  line-height:1.7;margin:0;">${modelAnswer}</p>
+      </div>
+    `;
+    document.getElementById('next-story-btn').style.display = 'block';
+  };
+
+  window.showStoryComplete = function (topicIdInner) {
+    const completeContainer =
+      document.getElementById('story-view') ||
+      document.getElementById('story-route') ||
+      document.querySelector('[data-view="story"]') ||
+      document.querySelector('.story-container');
+    if (!completeContainer) return;
+    completeContainer.innerHTML = `
+      <div style="max-width:600px;margin:0 auto;padding:4rem 2rem;
+                  text-align:center;">
+        <div style="width:64px;height:64px;border-radius:50%;
+                    background:rgba(52,211,153,0.12);
+                    border:1px solid rgba(52,211,153,0.3);
+                    display:flex;align-items:center;justify-content:center;
+                    margin:0 auto 1.5rem;font-size:1.5rem;color:#34D399;">
+          ✓
+        </div>
+        <h2 style="font-family:var(--font-display);font-size:2rem;
+                   color:var(--text-primary);margin-bottom:0.5rem;">
+          Topic Complete
+        </h2>
+        <p style="color:var(--text-secondary);margin-bottom:2rem;">
+          You finished all ${stories.length} stories in ${topic.title_en}.
+        </p>
+        <button onclick="renderStoryMode()"
+                style="padding:0.8rem 2rem;background:#4F8EF7;
+                       color:white;border:none;border-radius:10px;
+                       font-size:0.8rem;font-weight:600;
+                       letter-spacing:0.1em;text-transform:uppercase;
+                       cursor:pointer;">
+          Back to Topics
+        </button>
+      </div>
+    `;
+  };
+
+  showStory(currentStory);
 }
 
 function initTopicInteractions(id) {
@@ -2692,7 +2860,6 @@ document.addEventListener('DOMContentLoaded', () => {
   mountTopics();
   renderTopicCards();
   initL2AnswerDelegation();
-  initStoryDelegation();
   initSpaRouter();
   initCountdown();
   initGradeCalc();
