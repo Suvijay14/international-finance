@@ -203,8 +203,8 @@ let conversationHistory = [
       addMessage("assistant", reply);
     } catch (error) {
       removeTypingIndicator();
-      const detail = error && error.message ? " (" + error.message + ")" : "";
-      addMessage("assistant", "Connection error. Check your internet and try again." + detail);
+      const detail = error && error.message ? error.message : '';
+      addMessage('assistant', 'Connection error: ' + detail);
     } finally {
       window.clearTimeout(slowResponseTimer);
       if (pendingSlowNode && pendingSlowNode.parentNode) {
