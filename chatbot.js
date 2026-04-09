@@ -203,7 +203,14 @@ let conversationHistory = [
         }
       );
 
-      const data = await response.json();
+      const rawText = await response.text();
+      let data = null;
+      try {
+        data = rawText ? JSON.parse(rawText) : null;
+      } catch (parseError) {
+        data = null;
+      }
+
       if (!response.ok) {
         const apiError =
           data &&
@@ -211,7 +218,8 @@ let conversationHistory = [
           (typeof data.error === "string"
             ? data.error
             : data.error.message || data.error.code || "Server error");
-        throw new Error(apiError || "Server error");
+        const fallback = response.status + " " + (response.statusText || "Request failed");
+        throw new Error(apiError || fallback);
       }
       const reply = data && data.choices && data.choices[0] && data.choices[0].message
         ? data.choices[0].message.content
