@@ -5,14 +5,18 @@ export default async function handler(req, res) {
 
   try {
     const { messages } = req.body;
-    
-    const groqResponse = await fetch(
+ 
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Invalid messages format' });
+    }
+ 
+    const groqRes = await fetch(
       'https://api.groq.com/openai/v1/chat/completions',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + process.env.GROQ_API_KEY
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
@@ -22,29 +26,23 @@ export default async function handler(req, res) {
         })
       }
     );
-
-    const data = await groqResponse.json();
+ 
+    const text = await groqRes.text();
     
-    if (!groqResponse.ok) {
+    if (!groqRes.ok) {
       return res.status(500).json({ 
-        error: 'Groq API error', 
-        details: data 
+        error: 'Groq error', 
+        status: groqRes.status,
+        body: text 
       });
     }
-
-    if (!data.choices || !data.choices[0]) {
-      return res.status(500).json({ 
-        error: 'Unexpected Groq response', 
-        details: data 
-      });
-    }
-
+ 
+    const data = JSON.parse(text);
     return res.status(200).json(data);
 
   } catch (err) {
     return res.status(500).json({ 
-      error: 'Server error', 
-      message: err.message 
+      error: err.message 
     });
   }
 }
