@@ -1871,12 +1871,17 @@ function renderView(hash, options) {
   const parsed = parseHash(hash);
   const stage = document.getElementById('spa-stage');
   const homeEl = document.getElementById('home-view');
+  const storyViewEl = document.getElementById('story-view');
   if (!homeEl) return;
 
   const applyView = () => {
     document.querySelectorAll('.nav-topic-link').forEach((el) => el.classList.remove('active'));
     homeEl.style.display = 'none';
+    if (storyViewEl) storyViewEl.style.display = 'none';
     document.querySelectorAll('.topic-route').forEach((el) => {
+      el.style.display = 'none';
+    });
+    document.querySelectorAll('.topic-section').forEach((el) => {
       el.style.display = 'none';
     });
 
@@ -1893,8 +1898,7 @@ function renderView(hash, options) {
     } else if (parsed.type === 'story') {
       if (parsed.topicId) renderStoryTopic(parsed.topicId);
       else renderStoryMode();
-      const se = document.getElementById('story-route');
-      if (se) se.style.display = 'block';
+      if (storyViewEl) storyViewEl.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (parsed.type === 'topic') {
       ensureTopicRendered(parsed.id);
