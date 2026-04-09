@@ -1852,8 +1852,11 @@ function parseHash(hash) {
   const raw = (hash || '').replace(/^#/, '').trim() || 'home';
   if (raw === 'home' || raw === '') return { type: 'home', scrollTo: null };
   if (raw === 'story') return { type: 'story', topicId: null };
+  if (raw === 'how-to-study') return { type: 'how-to-study' };
   const storyTopic = raw.match(/^story-(IF\d+)$/);
   if (storyTopic) return { type: 'story', topicId: storyTopic[1] };
+  const homeAnchorAliases = { traps: 'trap-trainer', mock: 'mock-exam', grades: 'grade-calc' };
+  if (homeAnchorAliases[raw]) return { type: 'home', scrollTo: homeAnchorAliases[raw] };
   const homeAnchors = ['grade-calc', 'doubt-board', 'hero', 'topic-picker', 'trap-trainer', 'mock-exam'];
   if (homeAnchors.includes(raw)) return { type: 'home', scrollTo: raw };
   const topicPrefix = raw.match(/^(IF\d+)/);
@@ -1872,12 +1875,14 @@ function renderView(hash, options) {
   const stage = document.getElementById('spa-stage');
   const homeEl = document.getElementById('home-view');
   const storyViewEl = document.getElementById('story-view');
+  const howToStudyViewEl = document.getElementById('how-to-study-view');
   if (!homeEl) return;
 
   const applyView = () => {
     document.querySelectorAll('.nav-topic-link').forEach((el) => el.classList.remove('active'));
     homeEl.style.display = 'none';
     if (storyViewEl) storyViewEl.style.display = 'none';
+    if (howToStudyViewEl) howToStudyViewEl.style.display = 'none';
     document.querySelectorAll('.topic-route').forEach((el) => {
       el.style.display = 'none';
     });
@@ -1899,6 +1904,10 @@ function renderView(hash, options) {
       if (parsed.topicId) renderStoryTopic(parsed.topicId);
       else renderStoryMode();
       if (storyViewEl) storyViewEl.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (parsed.type === 'how-to-study') {
+      renderHowToStudy();
+      if (howToStudyViewEl) howToStudyViewEl.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (parsed.type === 'topic') {
       ensureTopicRendered(parsed.id);
@@ -1929,6 +1938,72 @@ function renderView(hash, options) {
     stage.classList.add('spa-fade-in');
     window.setTimeout(() => stage.classList.remove('spa-fade-in'), 220);
   }, 150);
+}
+
+function renderHowToStudy() {
+  const container = document.getElementById('how-to-study-view');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="how-to-study-shell">
+      <h1 class="how-to-study-title">How to Use This Platform</h1>
+      <p class="how-to-study-subtitle">You have 6 days. Here is exactly what to do.</p>
+
+      <div class="study-steps">
+        <article class="study-step-card" style="--step-color:#34D399;">
+          <span class="study-step-number">01</span>
+          <h2>Start with Story Mode</h2>
+          <p>If you have never studied International Finance before, start here. Each topic (IF1-IF9) is broken into short stories. A real scenario, a simple explanation, one question. Work through IF4, IF5, and IF6 first — they are 60% of the exam.</p>
+          <a href="#story" class="nav-link nav-btn">→ Open Story Mode</a>
+        </article>
+
+        <article class="study-step-card" style="--step-color:#4F8EF7;">
+          <span class="study-step-number">02</span>
+          <h2>Use the Topic Sections for Formulas</h2>
+          <p>After each story topic, go to the matching section in the nav (IF1, IF2... IF9). Level 1 explains the concept. Level 2 gives you the formulas. Level 3 gives you a guided calculation. Do this for every topic you cover in Story Mode.</p>
+          <a href="#IF4" class="nav-link nav-btn">→ Start with IF4 (most tested)</a>
+        </article>
+
+        <article class="study-step-card" style="--step-color:#A78BFA;">
+          <span class="study-step-number">03</span>
+          <h2>Test Yourself with Traps and Mock Exam</h2>
+          <p>Once you have covered the main topics, go to Trap Trainer. These are the 7 mistakes students make every year — negative marking means each wrong answer costs you 0.25 points. Then take the full Mock Exam under timed conditions. It matches the exact 2025 final exam format.</p>
+          <div class="study-step-actions">
+            <a href="#traps" class="nav-link nav-btn">→ Trap Trainer</a>
+            <a href="#mock" class="nav-link nav-btn">→ Mock Exam</a>
+          </div>
+        </article>
+
+        <article class="study-step-card" style="--step-color:#FBBF24;">
+          <span class="study-step-number">04</span>
+          <h2>Ask the Tutor Anything</h2>
+          <p>The chat bar at the bottom of every page is your personal tutor. It knows the entire course. Ask it to explain a formula, work through a calculation, or tell you what the exam will test on any topic. It only answers International Finance questions.</p>
+          <button type="button" class="nav-link nav-btn study-chat-btn" onclick="window.openIFTutorWithPrompt && window.openIFTutorWithPrompt('What is the Impossible Trinity?')">→ Try asking: What is the Impossible Trinity?</button>
+        </article>
+      </div>
+
+      <section class="how-to-study-block">
+        <h2>Know Your Numbers</h2>
+        <p class="how-to-study-subtitle">Enter your scores to see what you need on the final.</p>
+        <p>The grade calculator is in the Grades section → use it to find out the minimum you need to pass.</p>
+        <a href="#grades" class="nav-link nav-btn">→ Open Grade Calculator</a>
+      </section>
+
+      <section class="how-to-study-block">
+        <h2>The Formula Sheet</h2>
+        <p class="how-to-study-subtitle">All formulas from all 9 topics in one place.</p>
+        <p>At the bottom of every page is a Formula Sheet button. Click it before the exam for a complete reference. The most important formulas:</p>
+        <p class="how-formula-line">- FX: % change = (New - Old) / Old × 100</p>
+        <p class="how-formula-line">- IRP: F = S × (1 + i_domestic) / (1 + i_foreign)</p>
+        <p class="how-formula-line">- PPP: E[S] = S₀ × (1 + π_domestic) / (1 + π_foreign)</p>
+        <p class="how-formula-line">- Futures Long: (S_T - F_0) × Contract Size</p>
+        <p class="how-formula-line">- Futures Short: (F_0 - S_T) × Contract Size</p>
+        <p class="how-formula-line">- Put payoff: max(0, Strike - Spot)</p>
+        <p class="how-formula-line">- Call payoff: max(0, Spot - Strike)</p>
+      </section>
+
+      <div class="how-warning-box">⚠ Exam is April 16, 2026.<br>Part I: 8 MCQs (+1 / -0.25 / 0)<br>Part II: 7 Open Problems (show all working)<br>Part III: 10 Open Questions (1.5 pts each)<br>Total: 30 points | 2 hours | Closed book<br>Negative marking: only answer MCQs if you are 70%+ confident.</div>
+    </div>
+  `;
 }
 
 function initSpaRouter() {

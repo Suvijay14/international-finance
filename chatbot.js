@@ -1,6 +1,3 @@
-const GROQ_API_KEY = "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";
-const GROQ_MODEL = "llama-3.1-8b-instant";
-
 const SYSTEM_PROMPT = `You are a strict but clear International 
 Finance tutor for SKEMA Business School students preparing for 
 their final exam on April 16, 2026.
@@ -58,6 +55,7 @@ const SUGGESTION_CHIPS = [
   "How do I calculate triangular arbitrage?",
   "What is covered interest arbitrage?"
 ];
+const CHATBOT_API_ENDPOINT = "/.netlify/functions/chat";
 
 let conversationHistory = [
   { role: "system", content: SYSTEM_PROMPT }
@@ -191,21 +189,23 @@ let conversationHistory = [
 
     try {
       const response = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
+        CHATBOT_API_ENDPOINT,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + GROQ_API_KEY
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: GROQ_MODEL,
             messages: conversationHistory,
             max_tokens: 400,
             temperature: 0.3
           })
         }
       );
+
+      if (!response.ok) {
+        throw new Error("Server error");
+      }
 
       const data = await response.json();
       const reply = data && data.choices && data.choices[0] && data.choices[0].message
@@ -232,6 +232,13 @@ let conversationHistory = [
       scrollToBottom();
     }
   }
+
+  window.openIFTutorWithPrompt = function openIFTutorWithPrompt(promptText) {
+    openChat();
+    const prompt = typeof promptText === "string" ? promptText : "";
+    input.value = prompt;
+    input.focus();
+  };
 
   openBtn.addEventListener("click", openChat);
   closeBtn.addEventListener("click", closeChat);
