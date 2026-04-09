@@ -147,6 +147,117 @@ const LANG = {
     'trap.score': 'Score',
     'mock.model': 'Réponses modèles',
   },
+  no: {
+    'nav.grades': 'Karakterer',
+    'nav.doubt': 'Spørsmål',
+    'nav.traps': 'Feller',
+    'nav.mock': 'Prøveeksamen',
+    'nav.back': '← Tilbake til emner',
+    'hero.eyebrow': 'SKEMA Business School',
+    'hero.title': 'Bestå Internasjonal Finans',
+    'hero.subtitle': 'Studieveiledning for eksamen 16. april',
+    'hero.exam.info': '4 MCQ + 18 åpne spørsmål · 2 timer · Uten hjelpemidler',
+    'hero.choose': 'Velg et emne for å begynne',
+    'countdown.days': 'Dager',
+    'countdown.hours': 'Timer',
+    'countdown.minutes': 'Minutter',
+    'countdown.seconds': 'Sekunder',
+    'grade.title': 'Hvor mange poeng trenger du?',
+    'grade.predicted': 'Forventet score',
+    'grade.passing': 'Bestått',
+    'grade.failing': 'Ikke bestått',
+    'grade.borderline': 'På grensen',
+    'grade.need': 'Du trenger minst',
+    'grade.on.final': 'på slutteksamen for å bestå',
+    'grade.safe': 'Du består selv med 0 på slutteksamen',
+    'grade.impossible': 'Maksimal mulig score er',
+    'level.1.title': 'Nivå 1 — Forstå det',
+    'level.1.sub': 'Les dette. Ingen tall ennå.',
+    'level.fc.title': 'Flashkort',
+    'level.fc.sub': 'Jobb gjennom disse før formlene. Klikk for å snu.',
+    'level.2.title': 'Nivå 2 — Nøkkelformler',
+    'level.2.sub': 'Lær mekanismene.',
+    'level.3.title': 'Nivå 3 — Veiledet beregning',
+    'level.3.sub': 'Prøv matematikken. Hint tilgjengelig.',
+    'level.4.title': 'Nivå 4 — Eksamensimulering',
+    'level.4.sub': 'Virkelige eksamensforhold. Ingen hint.',
+    'level.5.title': 'Nivå 5 — Boss-nivå',
+    'level.5.sub': 'Slik ser den virkelige eksamen ut.',
+    'btn.check': 'Sjekk svaret mitt',
+    'btn.reveal': 'Vis svaret',
+    'btn.hint': 'Vis hint',
+    'btn.submit': 'Send inn',
+    'btn.start': 'Begynn å lære',
+    'btn.next': 'Neste nivå',
+    'btn.try': 'Prøv igjen',
+    'feedback.strong': 'Sterkt svar. Nøkkelbegreper dekket.',
+    'feedback.partial': 'Godt forsøk. Du manglet noen poeng.',
+    'feedback.weak': 'Trenger gjennomgang. Her er hva du bør inkludere:',
+    'feedback.model': 'Modellsvar',
+    'feedback.keywords': 'Nøkkelord',
+    'feedback.matched': 'funnet',
+    'feedback.missing': 'mangler',
+    'feedback.correct': 'Riktig',
+    'feedback.incorrect': 'Ikke helt',
+    'fc.question': 'Spørsmål',
+    'fc.answer': 'Svar',
+    'fc.tap': 'Klikk for å avsløre',
+    'fc.example': 'Eksempel:',
+    'fc.got': 'Forstått',
+    'fc.again': 'Lærer fortsatt',
+    'fc.mastered': 'mestret',
+    'fc.left': 'gjenstår',
+    'fc.remaining': 'gjenstår',
+    'fc.complete': 'Kortstokk fullført',
+    'fc.cards.mastered': 'kort mestret',
+    'fc.restart': 'Start på nytt',
+    'fc.type.definition': 'Definisjon',
+    'fc.type.formula': 'Formel',
+    'fc.type.application': 'Anvendelse',
+    'trap.title': 'Felletrener',
+    'trap.sub': 'Drill de 7 vanligste eksamensfellene. Negativ poenggiving: +1 / -0.25 / 0.',
+    'trap.score': 'Score',
+    'trap.correct': 'Riktig',
+    'trap.wrong': 'Feil',
+    'trap.blank': 'Hoppet over',
+    'trap.skip': 'Hopp over (0 poeng)',
+    'trap.next': 'Neste spørsmål',
+    'trap.finish': 'Se resultater',
+    'trap.warning': 'Felladvarsel:',
+    'trap.rule': 'Regel:',
+    'mock.title': 'Prøveslutteksamen',
+    'mock.sub': 'Matcher nøyaktig 2025-formatet. 30 poeng. 2 timer.',
+    'mock.start': 'Start eksamen',
+    'mock.timer': 'Gjenstående tid',
+    'mock.part1': 'Del I — MCQ',
+    'mock.part2': 'Del II — Problemer',
+    'mock.part3': 'Del III — Spørsmål',
+    'mock.submit.part': 'Send inn del',
+    'mock.results': 'Se resultater',
+    'mock.score.total': 'Total score',
+    'mock.score.pass': 'Du bestod!',
+    'mock.score.fail': 'Fortsett å studere.',
+    'mock.model.answers': 'Vis modellsvar',
+    'doubt.title': 'Klassens spørsmålstavle',
+    'doubt.subtitle': 'Still et spørsmål eller del noe nyttig. Hele klassen ser dette.',
+    'doubt.name': 'Ditt navn (valgfritt)',
+    'doubt.topic': 'Emne',
+    'doubt.question': 'Ditt spørsmål eller innsikt',
+    'doubt.post': 'Publiser',
+    'doubt.anonymous': 'Anonym',
+    'doubt.general': 'Generelt',
+    'doubt.empty': 'Ingen innlegg ennå.',
+    'priority.high': 'Høy prioritet',
+    'priority.medium': 'Middels prioritet',
+    'given': 'Gitt',
+    'required': 'Spurt',
+    'solution': 'Løsning',
+    'worked.example': 'Arbeidet eksempel',
+    'quiz': 'Quiz',
+    'case.study': 'Casestudie',
+    'score': 'Score',
+    'mastered': 'Emne mestret',
+  },
 };
 
 let currentLang = 'en';
@@ -164,7 +275,7 @@ function applyStaticTranslations() {
 }
 
 function switchLang(lang) {
-  currentLang = lang === 'fr' ? 'fr' : 'en';
+  currentLang = LANG[lang] ? lang : 'en';
   document.querySelectorAll('.lang-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.lang === currentLang);
   });
@@ -175,7 +286,7 @@ function switchLang(lang) {
   initGradeCalc();
   renderTrapTrainer();
   renderMockExam();
-  localStorage.setItem('if-study-lang', currentLang);
+  localStorage.setItem('if_lang', currentLang);
 }
 
 function checkKeywords(userAnswer, keywords) {
@@ -2745,8 +2856,8 @@ function renderMockExam() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const savedLang = localStorage.getItem('if-study-lang');
-  if (savedLang === 'fr') currentLang = 'fr';
+  const savedLang = localStorage.getItem('if_lang') || localStorage.getItem('if-study-lang');
+  if (savedLang && LANG[savedLang]) currentLang = savedLang;
   applyStaticTranslations();
   mountTopics();
   renderTopicCards();
