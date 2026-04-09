@@ -1,4 +1,4 @@
-const GROQ_API_KEY = "PASTE_KEY_HERE";
+const GROQ_API_KEY = "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";
 
 const SYSTEM_PROMPT = `You are a strict but clear International 
 Finance tutor for SKEMA Business School students preparing for 
