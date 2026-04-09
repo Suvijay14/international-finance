@@ -4,6 +4,8 @@
  * (COMPLETE_MASTER_REFERENCE.md was not present.)
  */
 
+const STORY_MODE = (typeof window !== 'undefined' && window.STORY_MODE) ? window.STORY_MODE : null;
+
 const LANG = {
   en: {
     'nav.grades': 'Grades',
@@ -1985,11 +1987,22 @@ function renderStoryMode() {
   if (!container) return;
 
   if (typeof STORY_MODE === 'undefined') {
-    container.innerHTML = '<p style="color:red">STORY_MODE not loaded</p>';
+    console.error('STORY_MODE not defined');
     return;
   }
 
-  const topics = STORY_MODE.topics;
+  const topicsData = [
+    { id: "IF1", title_en: "Globalization & the MNC", stories: 6, color: "#34D399", priority: "medium" },
+    { id: "IF2", title_en: "International Monetary System", stories: 7, color: "#FBBF24", priority: "medium" },
+    { id: "IF3", title_en: "Balance of Payments", stories: 8, color: "#4F8EF7", priority: "high" },
+    { id: "IF4", title_en: "Foreign Exchange Market", stories: 10, color: "#F97316", priority: "high" },
+    { id: "IF5", title_en: "PPP & Interest Rate Parity", stories: 10, color: "#A78BFA", priority: "high" },
+    { id: "IF6", title_en: "Futures & Options", stories: 10, color: "#F87171", priority: "high" },
+    { id: "IF7", title_en: "Managing Exposure", stories: 8, color: "#34D399", priority: "high" },
+    { id: "IF8", title_en: "Corporate Governance", stories: 7, color: "#FBBF24", priority: "medium" },
+    { id: "IF9", title_en: "FDI & Cross-Border M&A", stories: 6, color: "#4F8EF7", priority: "medium" }
+  ];
+  const topics = (STORY_MODE && STORY_MODE.topics) ? STORY_MODE.topics : topicsData;
 
   container.innerHTML = `
     <div style="max-width:1100px;margin:0 auto;padding:2rem;">
