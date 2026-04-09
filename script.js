@@ -279,10 +279,6 @@ function switchLang(lang) {
   document.querySelectorAll('.lang-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.lang === currentLang);
   });
-  const norwegianGreeting = document.getElementById('norwegian-greeting');
-  if (norwegianGreeting) {
-    norwegianGreeting.style.display = currentLang === 'no' ? 'block' : 'none';
-  }
   applyStaticTranslations();
   rendered.clear();
   renderTopicCards();
