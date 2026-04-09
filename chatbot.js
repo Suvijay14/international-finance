@@ -55,7 +55,7 @@ const SUGGESTION_CHIPS = [
   "How do I calculate triangular arbitrage?",
   "What is covered interest arbitrage?"
 ];
-const CHATBOT_API_ENDPOINT = "/.netlify/functions/chat";
+const CHATBOT_API_ENDPOINT = "/api/chat";
 
 let conversationHistory = [
   { role: "system", content: SYSTEM_PROMPT }
