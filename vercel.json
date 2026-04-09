@@ -1,12 +1,13 @@
 {
-  "rewrites": [
+  "functions": {
+    "api/chat.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
     {
-      "source": "/netlify/functions/chat",
-      "destination": "/api/chat"
-    },
-    {
-      "source": "/.netlify/functions/chat",
-      "destination": "/api/chat"
+      "src": "/api/chat",
+      "dest": "/api/chat.js"
     }
   ]
 }
