@@ -188,42 +188,13 @@ let conversationHistory = [
     }, 10000);
 
     try {
-      const response = await fetch(
-        CHATBOT_API_ENDPOINT,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            messages: conversationHistory,
-            max_tokens: 400,
-            temperature: 0.3
-          })
-        }
-      );
-
-      const rawText = await response.text();
-      let data = null;
-      try {
-        data = rawText ? JSON.parse(rawText) : null;
-      } catch (parseError) {
-        data = null;
-      }
-
-      if (!response.ok) {
-        const apiError =
-          data &&
-          data.error &&
-          (typeof data.error === "string"
-            ? data.error
-            : data.error.message || data.error.code || "Server error");
-        const fallback = response.status + " " + (response.statusText || "Request failed");
-        throw new Error(apiError || fallback);
-      }
-      const reply = data && data.choices && data.choices[0] && data.choices[0].message
-        ? data.choices[0].message.content
-        : "Connection error. Check your internet and try again.";
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversationHistory })
+      });
+      const data = await response.json();
+      const reply = data.choices[0].message.content;
 
       conversationHistory.push({ role: "assistant", content: reply });
       trimConversationHistory();
