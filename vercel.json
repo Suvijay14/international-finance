@@ -1,5 +1,4 @@
 {
-  "analytics": true,
   "routes": [
     {
       "src": "/api/chat",
